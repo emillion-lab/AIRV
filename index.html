@@ -2,168 +2,222 @@
 <html lang="bg">
 <head>
 <meta charset="utf-8"/>
-<title>AIRV — MULTILINGUAL CLASSIFIED TERMINAL</title>
+<title>AIRV — STRATEGIC INTEL TERMINAL v4.0</title>
 <style>
   :root {
-    --bg: #030503; --panel: #070a07; --line: #142214;
+    --bg: #020502; --panel: #080c08; --line: #1a2a1a;
     --green: #00ff41; --green-dim: #008f11; --amber: #ffb000;
-    --txt: #d1ffd1; --mono: "Courier New", Courier, monospace;
+    --red: #ff3131; --txt: #d1ffd1; --mono: "Fira Code", "Courier New", monospace;
   }
+  * { box-sizing: border-box; transition: all 0.1s ease; }
   body { 
     margin: 0; background: var(--bg); color: var(--txt); 
-    font: 12px/1.2 var(--mono); text-transform: uppercase;
+    font: 12px/1.4 var(--mono); text-transform: uppercase;
+    overflow: hidden; height: 100vh;
   }
-  .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
-  .grid { display: grid; gap: 10px; }
-  .g3 { grid-template-columns: 280px 1fr 280px; }
-  .panel { border: 1px solid var(--line); padding: 12px; background: var(--panel); position: relative; }
-  .btn { background: transparent; border: 1px solid var(--green-dim); color: var(--green); padding: 5px 10px; cursor: pointer; margin: 2px; }
-  .btn:hover { background: var(--green-dim); color: #000; }
-  .hint-box { background: rgba(0, 255, 65, 0.05); border-left: 3px solid var(--amber); padding: 8px; margin-bottom: 10px; color: var(--amber); font-style: italic; }
-  canvas.sk { background: #000; border: 1px solid var(--line); width: 100%; cursor: crosshair; }
-  textarea, input, select { background: #000; border: 1px solid var(--line); color: var(--green); padding: 5px; font: 12px var(--mono); width: 100%; }
-  .matrix-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-  .crt::before { content: " "; position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%); z-index: 100; pointer-events: none; background-size: 100% 3px; }
+  /* CRT Screen Effect */
+  body::before {
+    content: " "; position: fixed; inset: 0; pointer-events: none; z-index: 1000;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+    background-size: 100% 3px;
+  }
+  .app-grid { display: grid; grid-template-columns: 260px 1fr 300px; height: 100vh; padding: 10px; gap: 10px; }
+  .panel { border: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; position: relative; padding: 15px; box-shadow: inset 0 0 15px rgba(0,255,65,0.05); }
+  .header { grid-column: span 3; display: flex; justify-content: space-between; align-items: center; padding: 5px 15px; border: 1px solid var(--line); background: var(--panel); }
+  
+  .title { color: var(--green); font-weight: bold; letter-spacing: 2px; text-shadow: 0 0 5px var(--green-dim); }
+  .btn { background: transparent; border: 1px solid var(--green-dim); color: var(--green); padding: 8px; cursor: pointer; margin-bottom: 5px; text-align: left; font-size: 11px; }
+  .btn:hover, .btn.active { background: var(--green-dim); color: #000; box-shadow: 0 0 10px var(--green-dim); }
+  .btn-red { border-color: var(--red); color: var(--red); }
+  
+  .hint { background: rgba(255, 176, 0, 0.05); border-left: 3px solid var(--amber); padding: 10px; margin-bottom: 15px; color: var(--amber); font-size: 11px; line-height: 1.4; }
+  canvas { background: #000; border: 1px solid var(--line); width: 100%; cursor: crosshair; flex-grow: 1; }
+  
+  textarea, input, select { background: #000; border: 1px solid var(--line); color: var(--green); padding: 10px; font: 12px var(--mono); width: 100%; outline: none; }
+  .matrix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-grow: 1; }
+  .label { font-size: 9px; color: var(--green-dim); margin: 5px 0 2px 0; display: block; }
+  
+  #log { flex-grow: 1; overflow-y: auto; font-size: 10px; color: var(--green-dim); padding: 5px; border: 1px solid var(--line); background: #000; }
+  .report-box { background: #000; padding: 20px; border: 1px dashed var(--green); white-space: pre-wrap; font-size: 13px; color: #fff; line-height: 1.6; overflow-y: auto; }
 </style>
 </head>
-<body class="crt">
+<body>
 
-<div class="container">
-  <div class="panel" style="display:flex; justify-content: space-between; align-items: center; margin-bottom:10px;">
-    <div style="font-size:16px; font-weight:bold;">AIRV // TERMINAL_ID: <span id="cur-lang-label">BG</span></div>
-    <div>
-      <select id="lang-select" style="width: auto;" onchange="updateLang()">
-        <option value="bg">Български</option>
-        <option value="en">English</option>
-        <option value="cz">Čeština</option>
+<div class="app-grid">
+  <header class="header">
+    <div class="title">AIRV-STRATEGIC // PHASE_4</div>
+    <div style="display:flex; gap:15px;">
+      <select id="lang" onchange="switchLang()" style="width:120px;">
+        <option value="bg">БЪЛГАРСКИ</option>
+        <option value="en">ENGLISH</option>
+        <option value="cz">ČEŠTINA</option>
+        <option value="de">DEUTSCH</option>
+        <option value="ru">РУССКИЙ</option>
       </select>
-      <button class="btn" onclick="generateTRN()">GEN_COORDINATES</button>
+      <div id="clock" style="color:var(--amber)">00:00:00</div>
     </div>
-  </div>
+  </header>
 
-  <div class="grid g3">
-    <div class="panel">
-      <h3 id="label-nav">PROTOCOL_STEPS</h3>
-      <button class="btn" style="width:100%" onclick="setStage('S1')">S1: IDEOGRAM</button>
-      <button class="btn" style="width:100%" onclick="setStage('S2')">S2: SENSORY</button>
-      <button class="btn" style="width:100%" onclick="setStage('S4')">S4: MATRIX</button>
-      <div style="margin-top:20px; font-size:10px; color:var(--green-dim);">
-        STATUS: <span id="trn-display">NONE</span><br>
-        STAGE: <span id="st-display">IDLE</span>
-      </div>
+  <nav class="panel">
+    <span class="label">OPERATIONAL_STEPS</span>
+    <button class="btn" id="btn-S1" onclick="setStage('S1')">S1: IDEOGRAM/GESTALT</button>
+    <button class="btn" id="btn-S2" onclick="setStage('S2')">S2: SENSORY_DATA</button>
+    <button class="btn" id="btn-S4" onclick="setStage('S4')">S4: ANALYTIC_MATRIX</button>
+    <button class="btn" id="btn-S5" onclick="setStage('S5')">S5: INTERROGATION</button>
+    <button class="btn" id="btn-REP" onclick="setStage('REP')" style="margin-top:20px; border-color:var(--green);">[ GENERATE_INTELLIGENCE ]</button>
+    
+    <div style="margin-top:auto;">
+      <span class="label">COORDINATES (TRN)</span>
+      <div id="trn-val" style="font-size:18px; color:var(--amber); margin-bottom:10px;">0000-0000</div>
+      <button class="btn" onclick="newTRN()" style="width:100%">NEW_TASK</button>
     </div>
+  </nav>
 
-    <div class="panel" id="work-area">
-      <div id="hint-area" class="hint-box"></div>
-      <div id="stage-content"></div>
-    </div>
+  <main class="panel">
+    <div id="hint-box" class="hint"></div>
+    <div id="workspace" style="display:flex; flex-direction:column; flex-grow:1;"></div>
+  </main>
 
-    <div class="panel">
-      <h3 id="label-log">SESSION_LOG</h3>
-      <div id="log-entries" style="height:300px; overflow-y:auto; color:var(--green-dim); font-size:10px;"></div>
-    </div>
-  </div>
+  <aside class="panel">
+    <span class="label">LIVE_INTEL_LOG</span>
+    <div id="log"></div>
+    <button class="btn btn-red" onclick="resetSession()" style="margin-top:10px; width:100%">PURGE_SESSION</button>
+  </aside>
 </div>
 
 <script>
 const I18N = {
   bg: {
-    nav: "ПРОТОКОЛНИ ЕТАПИ", log: "ЛОГ НА СЕСИЯТА",
-    hints: {
-      S1: "ИНСТРУКЦИЯ: Начертай идеограмата веднага след TRN. Не мисли. Земя? Вода? Въздух? Движение?",
-      S2: "ИНСТРУКЦИЯ: Опиши само физически усещания. Цветове, температури, миризми, звуци.",
-      S4: "ИНСТРУКЦИЯ: Подреди данните. Ако усетиш силен 'шум' (име на място), запиши го в AOL колоната и почини."
-    },
-    labels: { s: "Сетивни", d: "Размерни", ai: "Естетика", aol: "Анализ/AOL" }
+    h: ["Етап 1: Начертай импулса веднага. Опиши физическия гесталт.", "Етап 2: Сетивни качества (цветове, звуци, миризми). Без имена!", "Етап 4: Матрица. Раздели данните от аналитичния шум (AOL).", "Етап 5: Обобщение. Какъв е изводът за функцията на обекта?", "ФИНАЛЕН ДОКЛАД: Анализирани данни за оперативно ползване."],
+    labels: ["СЕТИВА", "РАЗМЕРИ", "ЕСТЕТИКА", "AOL/АНАЛИЗ", "ИЗВОД / ФУНКЦИЯ", "ВИЗУАЛИЗАЦИЯ"]
   },
   en: {
-    nav: "PROTOCOL STEPS", log: "SESSION LOG",
-    hints: {
-      S1: "HINT: Draw the ideogram immediately. Don't think. Land? Water? Air? Motion?",
-      S2: "HINT: List sensory data only. Colors, textures, smells, sounds.",
-      S4: "HINT: Categorize data. If you 'see' a name, put it in AOL and take a break."
-    },
-    labels: { s: "Sensory", d: "Dimension", ai: "Aesthetic", aol: "Analysis/AOL" }
+    h: ["Stage 1: Sketch the impulse instantly. Define the gestalt.", "Stage 2: Sensory qualities (colors, sounds, smells). No names!", "Stage 4: Matrix. Separate signal from analytical noise (AOL).", "Stage 5: Interrogation. What is the conclusion about the function?", "FINAL REPORT: Analyzed intelligence for operational use."],
+    labels: ["SENSORY", "DIMENSIONS", "AESTHETIC", "AOL/ANALYSIS", "CONCLUSION / FUNCTION", "VISUALIZATION"]
   },
   cz: {
-    nav: "PROTOKOLÁRNÍ KROKY", log: "PROTOKOL RELACE",
-    hints: {
-      S1: "TIP: Nakreslete ideogram okamžitě. Nepřemýšlejte. Země? Voda? Vzduch? Pohyb?",
-      S2: "TIP: Popište pouze smyslové vjemy. Barvy, teploty, pachy, zvuky.",
-      S4: "TIP: Roztřiďte data. Pokud 'uvidíte' jméno, zapište ho do AOL a dejte si pauzu."
-    },
-    labels: { s: "Smyslové", d: "Rozměry", ai: "Estetika", aol: "Analýza/AOL" }
+    h: ["Fáze 1: Okamžitě nakreslete impuls. Definujte gestalt.", "Fáze 2: Smyslové vlastnosti (barvy, zvuky, pachy). Žádná jména!", "Fáze 4: Matice. Oddělte signál od analytického šumu (AOL).", "Fáze 5: Výslech. Jaký je závěr o funkci objektu?", "ZÁVĚREČNÁ ZPRÁVA: Analyzované zpravodajské informace."],
+    labels: ["SMYSLY", "ROZMĚRY", "ESTETIKA", "AOL/ANALÝZA", "ZÁVĚR / FUNKCE", "VIZUALIZACE"]
+  },
+  de: {
+    h: ["Phase 1: Skizzieren Sie den Impuls sofort. Gestalt definieren.", "Phase 2: Sensorik (Farben, Töne, Gerüche). Keine Namen!", "Phase 4: Matrix. Signal von analytischem Rauschen (AOL) trennen.", "Phase 5: Abfrage. Was ist die Schlussfolgerung zur Funktion?", "BERICHT: Analysierte Daten für den operativen Einsatz."],
+    labels: ["SENSORIK", "DIMENSIONEN", "ÄSTHETIK", "AOL/ANALYSE", "FAZIT / FUNKTION", "VISUALISIERUNG"]
+  },
+  ru: {
+    h: ["Этап 1: Немедленно нарисуйте импульс. Определите гештальт.", "Этап 2: Сенсорные данные (цвет, звук, запах). Без имен!", "Этап 4: Матрица. Отделите сигнал от аналитического шума (AOL).", "Этап 5: Опрос. Каков вывод о функции объекта?", "ОТЧЕТ: Аналитические данные для оперативного использования."],
+    labels: ["ЧУВСТВА", "РАЗМЕРЫ", "ЭСТЕТИКА", "AOL/АНАЛИЗ", "ВЫВОД / ФУНКЦИЯ", "ВИЗУАЛИЗАЦИЯ"]
   }
 };
 
-let currentLang = 'bg';
-let state = { stage: 'IDLE', trn: '' };
+let state = {
+  lang: 'bg', stage: 'IDLE', trn: '0000-0000',
+  data: { s1_txt: '', s2_txt: '', s4_s: '', s4_d: '', s4_ai: '', s4_aol: '', s5_txt: '', canvas: null }
+};
 
-function updateLang() {
-  currentLang = document.getElementById('lang-select').value;
-  document.getElementById('cur-lang-label').textContent = currentLang.toUpperCase();
-  document.getElementById('label-nav').textContent = I18N[currentLang].nav;
-  document.getElementById('label-log').textContent = I18N[currentLang].log;
+function switchLang() {
+  state.lang = document.getElementById('lang').value;
   render();
 }
 
-function generateTRN() {
+function newTRN() {
   state.trn = `${Math.floor(1000+Math.random()*8999)}-${Math.floor(1000+Math.random()*8999)}`;
-  document.getElementById('trn-display').textContent = state.trn;
-  log(`COORDINATES SET: ${state.trn}`);
+  document.getElementById('trn-val').textContent = state.trn;
+  log(`NEW_TASK: ${state.trn}`, 'amber');
+  setStage('S1');
 }
 
 function setStage(s) {
   state.stage = s;
-  document.getElementById('st-display').textContent = s;
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+  const activeBtn = document.getElementById('btn-'+s);
+  if(activeBtn) activeBtn.classList.add('active');
   render();
 }
 
 function render() {
-  const area = document.getElementById('stage-content');
-  const hint = document.getElementById('hint-area');
-  
-  if(state.stage === 'IDLE') {
-    hint.innerHTML = "WAITING FOR TRN COMMAND...";
-    area.innerHTML = "SYSTEM READY.";
-    return;
-  }
+  const ws = document.getElementById('workspace');
+  const hint = document.getElementById('hint-box');
+  const lb = I18N[state.lang].labels;
+  ws.innerHTML = "";
 
-  hint.textContent = I18N[currentLang].hints[state.stage];
+  if(state.stage === 'IDLE') { hint.textContent = "WAITING FOR COORDINATES..."; return; }
   
-  if(state.stage === 'S1') {
-    area.innerHTML = `<canvas id="c" class="sk" height="300"></canvas><button class="btn" onclick="clearC()">CLEAR</button>`;
-    initC();
-  } else if(state.stage === 'S4') {
-    const l = I18N[currentLang].labels;
-    area.innerHTML = `
-      <div class="matrix-grid">
-        <div><label>${l.s}</label><textarea></textarea></div>
-        <div><label>${l.d}</label><textarea></textarea></div>
-        <div><label>${l.ai}</label><textarea></textarea></div>
-        <div style="color:var(--amber)"><label>${l.aol}</label><textarea></textarea></div>
-      </div>`;
-  } else {
-    area.innerHTML = `<textarea style="height:300px" placeholder="DATA INPUT..."></textarea>`;
+  const stageIdx = ['S1','S2','S4','S5','REP'].indexOf(state.stage);
+  hint.textContent = I18N[state.lang].h[stageIdx];
+
+  switch(state.stage) {
+    case 'S1':
+      ws.innerHTML = `<span class="label">${lb[5]}</span><canvas id="cvs"></canvas>
+                      <span class="label">GESTALT</span><input type="text" value="${state.data.s1_txt}" oninput="state.data.s1_txt=this.value">`;
+      initCanvas(); break;
+    case 'S2':
+      ws.innerHTML = `<span class="label">${lb[0]}</span><textarea oninput="state.data.s2_txt=this.value">${state.data.s2_txt}</textarea>`;
+      break;
+    case 'S4':
+      ws.innerHTML = `<div class="matrix-grid">
+        <div><span class="label">${lb[0]}</span><textarea oninput="state.data.s4_s=this.value">${state.data.s4_s}</textarea></div>
+        <div><span class="label">${lb[1]}</span><textarea oninput="state.data.s4_d=this.value">${state.data.s4_d}</textarea></div>
+        <div><span class="label">${lb[2]}</span><textarea oninput="state.data.s4_ai=this.value">${state.data.s4_ai}</textarea></div>
+        <div><span class="label" style="color:var(--amber)">${lb[3]}</span><textarea oninput="state.data.s4_aol=this.value">${state.data.s4_aol}</textarea></div>
+      </div>`; break;
+    case 'S5':
+      ws.innerHTML = `<span class="label">${lb[4]}</span><textarea oninput="state.data.s5_txt=this.value">${state.data.s5_txt}</textarea>`;
+      break;
+    case 'REP':
+      generateFinalReport(ws); break;
   }
 }
 
-function initC() {
-  const c = document.getElementById('c'); if(!c) return;
+function generateFinalReport(container) {
+  const d = state.data;
+  const report = `
+[INTELLIGENCE REPORT]
+--------------------------------------------------
+TARGET_THEME:  ${state.trn}
+TIMESTAMP:     ${new Date().toLocaleString()}
+OPERATOR_ID:   AIRV_PRO_TERMINAL
+--------------------------------------------------
+
+1. VISUALIZATION (GESTALT)
+   - DATA: ${d.s1_txt || "NONE"}
+
+2. PARAMETERS (SENSORY & DIMENSIONS)
+   - S2_RAW: ${d.s2_txt || "NO SENSORY DATA"}
+   - S4_STRUCTURE: ${d.s4_s} | ${d.s4_d}
+   - AESTHETIC: ${d.s4_ai}
+
+3. ANALYTICAL NOISE (AOL)
+   - REJECTED_CONCEPTS: ${d.aol || "SYSTEM CLEAN"}
+
+4. CONCLUSION (FUNCTIONAL DEDUCTION)
+   - SUMMARY: ${d.s5_txt || "INCOMPLETE ANALYSIS"}
+
+--------------------------------------------------
+[END OF REPORT - CLASSIFIED]`;
+
+  container.innerHTML = `<div class="report-box">${report}</div>
+    <button class="btn" style="margin-top:10px; width:100%" onclick="window.print()">PRINT_INTEL</button>`;
+}
+
+function initCanvas() {
+  const c = document.getElementById('cvs'); if(!c) return;
   const ctx = c.getContext('2d');
-  let d = false; ctx.strokeStyle = "#00ff41"; ctx.lineWidth = 2;
-  c.onmousedown = (e) => { d = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); };
-  c.onmousemove = (e) => { if(d) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } };
-  window.onmouseup = () => d = false;
-}
-function clearC() { const c = document.getElementById('c'); c.getContext('2d').clearRect(0,0,c.width,c.height); }
-
-function log(m) {
-  const l = document.getElementById('log-entries');
-  l.innerHTML = `<div>> ${m}</div>` + l.innerHTML;
+  c.width = c.offsetWidth; c.height = c.offsetHeight;
+  if(state.data.canvas) { const img = new Image(); img.onload=()=>ctx.drawImage(img,0,0); img.src=state.data.canvas; }
+  let draw = false; ctx.strokeStyle="#00ff41"; ctx.lineWidth=2;
+  c.onmousedown = (e) => { draw=true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); };
+  c.onmousemove = (e) => { if(draw){ ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } };
+  window.onmouseup = () => { if(draw){ draw=false; state.data.canvas=c.toDataURL(); } };
 }
 
-window.onload = updateLang;
+function log(m, cl='') {
+  const l = document.getElementById('log');
+  l.innerHTML = `<div>[${new Date().toLocaleTimeString()}] <span style="color:var(--${cl||'green-dim'})">${m}</span></div>` + l.innerHTML;
+}
+
+function resetSession() { if(confirm("PURGE ALL DATA?")) location.reload(); }
+setInterval(()=> { document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-GB'); }, 1000);
+window.onload = () => { log("SYSTEM_READY"); log("AES-256_ACTIVE"); render(); };
 </script>
 </body>
 </html>
