@@ -3,488 +3,285 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>AIRV — Advanced Intelligence Remote Viewing</title>
+<title>AIRV — CLASSIFIED REMOTE VIEWING TERMINAL</title>
 <style>
-  :root{
-    --bg:#0b0f0c; --panel:#0f1511; --line:#18201a; --term:#0a120d;
-    --green:#10e08a; --green-dim:#66f1bb; --amber:#ffc857; --red:#ff4d4d; --gray:#a2a9a6;
-    --txt:#e6fff3; --muted:#b7d6c9;
-    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Code", "Fira Code", Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace;
+  :root {
+    --bg: #050705;
+    --panel: #0a0c0a;
+    --line: #1a2a1a;
+    --green: #00ff41; /* Classic Matrix/Terminal Green */
+    --green-dim: #008f11;
+    --red: #ff3131;
+    --amber: #ffb000;
+    --txt: #d1ffd1;
+    --mono: "Courier New", Courier, monospace;
   }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.4 var(--mono)}
-  .container{max-width:1200px;margin:0 auto;padding:16px}
-  .grid{display:grid;gap:12px}
-  .g2{grid-template-columns:1fr 1fr}
-  .g3{grid-template-columns:1fr 1fr 1fr}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px}
-  .title{font-size:18px;margin:0 0 8px 0;color:var(--green)}
-  .btn{background:transparent;border:1px solid var(--green);color:var(--green);padding:8px 10px;border-radius:6px;cursor:pointer}
-  .btn:hover{background:rgba(16,224,138,0.08)}
-  .btn.red{border-color:var(--red);color:var(--red)}
-  .btn.amber{border-color:var(--amber);color:var(--amber)}
-  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .muted{color:var(--muted)}
-  input,select,textarea{background:var(--term);border:1px solid var(--line);color:var(--txt);border-radius:6px;padding:8px;font:14px var(--mono)}
-  textarea{width:100%;min-height:90px;resize:vertical}
-  .kbd{display:inline-block;border:1px solid var(--line);background:#0a130e;color:var(--green-dim);padding:2px 6px;border-radius:4px;font-size:12px}
-  .badge{display:inline-block;border:1px solid var(--line);padding:2px 6px;border-radius:999px;font-size:12px;background:#0a130e;color:var(--muted)}
-  .term{background:var(--term);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:140px;white-space:pre-wrap}
-  .ok{color:var(--green)} .warn{color:var(--amber)} .err{color:var(--red)}
-  .bar{height:6px;background:#122018;border-radius:4px;overflow:hidden;border:1px solid var(--line)}
-  .bar>i{display:block;height:100%;background:linear-gradient(90deg, rgba(16,224,138,0.6), rgba(16,224,138,0.9));width:0%}
-  canvas.sk{width:100%;max-width:100%;background:#0b140f;border:1px dashed #1a2a21;border-radius:6px;touch-action:none}
-  .blur{filter:blur(8px)}
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:50}
-  .overlay .box{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;max-width:560px;width:95%}
-  .boot{position:fixed;inset:0;background:linear-gradient(#040604,#0b0f0c);display:flex;align-items:center;justify-content:center}
-  .boot .crt{width:90%;max-width:900px;background:#06110b;border:1px solid #0a1f14;border-radius:8px;padding:16px;color:#74f0c8;min-height:260px}
-  .top{position:sticky;top:0;background:linear-gradient(180deg, rgba(11,15,12,.98), rgba(11,15,12,.86));padding:8px;border-bottom:1px solid var(--line);z-index:10}
-  .top .big{font-size:20px;color:var(--green)}
-  .right{margin-left:auto}
-  .divider{border-top:1px dashed #1a2a21;margin:8px 0}
-  .small{font-size:12px}
-  .center{text-align:center}
-  .hidden{display:none}
+
+  * { box-sizing: border-box; cursor: crosshair; }
+  body { 
+    margin: 0; background: var(--bg); color: var(--txt); 
+    font: 13px/1.2 var(--mono); text-transform: uppercase;
+    overflow-x: hidden;
+  }
+
+  /* CRT Scanline Effect */
+  body::before {
+    content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 1000; pointer-events: none; background-size: 100% 2px, 3px 100%;
+  }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+  .grid { display: grid; gap: 15px; }
+  .g3 { grid-template-columns: 300px 1fr 300px; }
+  
+  .panel { 
+    background: var(--panel); border: 1px solid var(--line); 
+    padding: 15px; position: relative;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.05);
+  }
+
+  .panel::before {
+    content: "SECURED_CONNECTION"; position: absolute; top: -8px; left: 10px;
+    background: var(--bg); font-size: 9px; padding: 0 5px; color: var(--green-dim);
+  }
+
+  h3.title { 
+    color: var(--green); border-bottom: 1px solid var(--green-dim); 
+    padding-bottom: 5px; margin-top: 0; font-size: 14px; letter-spacing: 2px;
+  }
+
+  input, textarea, select {
+    background: #000; border: 1px solid var(--line); color: var(--green);
+    padding: 8px; font: 13px var(--mono); width: 100%; outline: none;
+  }
+
+  input:focus, textarea:focus { border-color: var(--green); box-shadow: 0 0 5px var(--green-dim); }
+
+  .btn {
+    background: transparent; border: 1px solid var(--green-dim); color: var(--green-dim);
+    padding: 6px 12px; cursor: pointer; transition: 0.2s;
+  }
+
+  .btn:hover { background: var(--green-dim); color: #000; box-shadow: 0 0 10px var(--green); }
+  .btn.active { color: var(--green); border-color: var(--green); }
+
+  .matrix-grid { 
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; 
+    margin-top: 10px;
+  }
+
+  canvas.sk { background: #000; border: 1px solid var(--line); width: 100%; touch-action: none; }
+  
+  .status-bar { border-top: 1px solid var(--line); padding: 5px; font-size: 10px; display: flex; gap: 20px; }
+  .crt-text { text-shadow: 0 0 8px var(--green-dim); }
+  
+  #log { height: 200px; overflow-y: auto; font-size: 11px; color: var(--green-dim); }
+  .hidden { display: none; }
+
+  /* Stage specific layouts */
+  .s4-col { display: flex; flex-direction: column; gap: 5px; }
+  .s4-col label { font-size: 10px; color: var(--green-dim); text-align: center; }
 </style>
 </head>
 <body>
 
-<!-- BOOT -->
-<div id="boot" class="boot">
-  <div class="crt term" id="bootLog"></div>
-</div>
-
-<div id="app" class="hidden">
-  <div class="top row">
-    <div class="big" id="appTitle"></div>
-    <div class="right row">
-      <span class="small muted" id="lblLang"></span>
-      <select id="langSel">
-        <option value="bg" selected>BG</option>
-        <option value="en">EN</option>
-      </select>
-      <button class="btn" id="focusBtn"></button>
-      <button class="btn" id="helpBtn" title="?">?</button>
-      <button class="btn amber" id="settingsBtn"></button>
+<div class="container">
+  <div class="panel" style="margin-bottom: 15px;">
+    <div style="display:flex; justify-content: space-between; align-items: center;">
+      <h1 class="crt-text" style="margin:0; font-size: 20px; color: var(--green);">STARGATE SYSTEM // AIRV-PRO v2.0</h1>
+      <div id="clock" class="amber">00:00:00</div>
     </div>
   </div>
 
-  <div class="container grid g3">
-    <!-- LEFT NAV / STATUS -->
+  <div class="grid g3">
     <div class="panel">
-      <h3 class="title" id="opsTitle"></h3>
-
-      <div class="row small">
-        <span class="muted" id="lblViewer"></span><input id="viewer" placeholder="RV-001" style="width:120px"/>
-        <span class="muted" id="lblClearance"></span>
-        <select id="clearance"><option id="optL3"></option><option id="optL2"></option><option id="optL1"></option></select>
+      <h3 class="title">I. OPERATION_DATA</h3>
+      <div class="grid">
+        <label>VIEWER_ID: <input type="text" id="viewer" value="V-099"/></label>
+        <label>COORDINATES: <div style="display:flex; gap:5px;">
+          <input type="text" id="trn" readonly placeholder="0000-0000"/>
+          <button class="btn" onclick="generateTRN()">NEW</button>
+        </div></label>
+        <div class="status-bar">
+          <span>ST: <b id="st-val">IDLE</b></span>
+          <span>RD: <b id="rd-val">0</b></span>
+        </div>
       </div>
-
-      <div class="divider"></div>
-
-      <div class="row small">
-        <span class="muted" id="lblTRN"></span><span id="trn" class="kbd">—</span>
-        <button class="btn" id="genTRN"></button>
+      
+      <div style="margin-top:20px;" class="grid">
+        <button class="btn" onclick="changeStage('S1')">STAGE I: IDEOGRAM</button>
+        <button class="btn" onclick="changeStage('S2')">STAGE II: SENSORY</button>
+        <button class="btn" onclick="changeStage('S3')">STAGE III: SKETCH</button>
+        <button class="btn" onclick="changeStage('S4')">STAGE IV: MATRIX</button>
+        <button class="btn" onclick="changeStage('S5')">STAGE V: INTERROG.</button>
+        <button class="btn" onclick="changeStage('S6')">STAGE VI: MODEL</button>
       </div>
-
-      <div class="row small">
-        <span class="muted" id="lblBlind"></span>
-        <select id="blind"><option value="true" id="optBlindOn"></option><option value="false" id="optBlindOff"></option></select>
-        <span class="muted" id="lblDeck"></span>
-        <select id="deckSel"><option value="sample" id="optDeckSample"></option><option value="custom" id="optDeckCustom"></option></select>
-        <input type="file" id="deckFile" accept="application/json" class="hidden"/>
-        <button class="btn" id="loadDeck"></button>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="row small">
-        <span class="muted" id="lblStage"></span><span id="stageName" class="kbd">—</span>
-        <span class="muted" id="lblRound"></span><span id="round" class="kbd">0</span>
-      </div>
-      <div class="bar" title="Stage Progress"><i id="stageBar"></i></div>
-      <div class="row small">
-        <span class="muted" id="lblTime"></span><span id="timer" class="kbd">00:00</span>
-        <span class="muted" id="lblAOL"></span><span id="aolCount" class="kbd">0</span>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="row">
-        <button class="btn" id="newTask"></button>
-        <button class="btn" id="loadTask"></button>
-        <button class="btn" id="saveTask"></button>
-      </div>
-      <div class="row">
-        <button class="btn amber" id="exportSessions"></button>
-        <button class="btn" id="importSessions"></button>
-        <input id="importFile" type="file" accept="application/json" class="hidden"/>
-      </div>
-
-      <p class="small muted" id="hotkeysRow"></p>
     </div>
 
-    <!-- CENTER: STAGE VIEW -->
-    <div class="panel" id="stagePanel">
-      <h3 class="title" id="stageTitle"></h3>
-      <div id="stageBody" class="grid"></div>
+    <div class="panel" id="work-area">
+      <h3 class="title" id="stage-title">INITIALIZING...</h3>
+      <div id="stage-content">
+        </div>
     </div>
 
-    <!-- RIGHT: INTEL LOG -->
     <div class="panel">
-      <h3 class="title" id="intelTitle">INTEL // Log</h3>
-      <div id="log" class="term"></div>
-      <div class="divider"></div>
-      <button class="btn red" id="resetSession"></button>
+      <h3 class="title">II. INTEL_LOG</h3>
+      <div id="log"></div>
+      <div class="divider" style="margin: 10px 0; border-top: 1px solid var(--line);"></div>
+      <button class="btn" style="width:100%" onclick="exportReport()">GENERATE REPORT</button>
+      <button class="btn red" style="width:100%; margin-top:5px; border-color:var(--red); color:var(--red);" onclick="resetSession()">PURGE SESSION</button>
     </div>
-  </div>
-</div>
-
-<!-- AOL BREAK OVERLAY -->
-<div id="aolOverlay" class="overlay">
-  <div class="box">
-    <h3 class="title" id="aolTitle">AOL BREAK</h3>
-    <p class="muted small" id="aolMsg"></p>
-    <div class="center" style="margin:10px 0">
-      <div class="kbd" id="aolTimer">20</div>
-    </div>
-    <button class="btn" id="endAOL"></button>
-  </div>
-</div>
-
-<!-- SETTINGS -->
-<div id="settingsOverlay" class="overlay">
-  <div class="box">
-    <h3 class="title" id="settingsTitle"></h3>
-    <div class="grid g2">
-      <div class="panel">
-        <div class="small muted" id="lblStageDur"></div>
-        <div class="row small"><label class="muted" style="width:60px">S1</label><input id="tS1" type="number" value="90" style="width:100px"/></div>
-        <div class="row small"><label class="muted" style="width:60px">S2</label><input id="tS2" type="number" value="180" style="width:100px"/></div>
-        <div class="row small"><label class="muted" style="width:60px">S3</label><input id="tS3" type="number" value="180" style="width:100px"/></div>
-        <div class="row small"><label class="muted" style="width:60px">S4</label><input id="tS4" type="number" value="180" style="width:100px"/></div>
-        <div class="row small"><label class="muted" style="width:60px">S5</label><input id="tS5" type="number" value="150" style="width:100px"/></div>
-        <div class="row small"><label class="muted" style="width:60px">S6</label><input id="tS6" type="number" value="180" style="width:100px"/></div>
-        <div class="divider"></div>
-        <label class="row small"><input id="sounds" type="checkbox"/> <span class="muted" id="lblSounds"></span></label>
-        <label class="row small"><input id="hardMode" type="checkbox"/> <span class="muted" id="lblCompliance"></span></label>
-      </div>
-      <div class="panel">
-        <div class="small muted" id="lblUI"></div>
-        <label class="row small"><input id="bigFonts" type="checkbox" checked/> <span class="muted" id="lblLargeFonts"></span></label>
-        <label class="row small"><input id="showHints" type="checkbox"/> <span class="muted" id="lblHints"></span></label>
-        <div class="divider"></div>
-        <button class="btn" id="closeSettings"></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- HELP -->
-<div id="helpOverlay" class="overlay">
-  <div class="box">
-    <h3 class="title" id="helpTitle"></h3>
-    <div class="term small" id="helpBody"></div>
-    <button class="btn" id="closeHelp"></button>
   </div>
 </div>
 
 <script>
-/** ===================== i18n (BG/EN) ===================== **/
-const I18N = {
-  bg: {
-    appTitle:"AIRV ▲ Advanced Intelligence Remote Viewing",
-    lang:"Език:",
-    btnFocus:"Фокус", btnHelp:"Помощ", btnSettings:"Настройки",
-    opsStatus:"OPS // Статус",
-    viewer:"Наблюдател:", clearance:"Достъп:",
-    level3:"Ниво 3", level2:"Ниво 2", level1:"Ниво 1",
-    trn:"TRN:", gen:"Генерирай",
-    blind:"Blind:", on:"ВКЛ", off:"ИЗКЛ",
-    deck:"Deck:", sample:"Примерен", custom:"Потребителски", load:"Зареди",
-    stage:"Етап:", round:"Рунд:", time:"Време:", aol:"AOL:",
-    newTask:"Ново задание", loadTask:"Зареди задание", saveTask:"Запази задание",
-    exportSessions:"Експорт сесии", importSessions:"Импорт",
-    intelLog:"INTEL // Лог",
-    resetSession:"Нулирай сесията",
-    hotkeys:"Клавиши: F Фокус • N Следващ • A AOL • ? Помощ",
-    // overlays
-    aolTitle:"AOL BREAK", aolMsg:"Остави анализа. Дишай. Рестартирай ума.", resume:"Продължи",
-    settings:"Настройки", stageDur:"Времетраене на етапи (секунди)",
-    sounds:"Звуци", compliance:"Режим Compliance (заключи времето)",
-    ui:"Интерфейс", largeFonts:"Големи шрифтове", hints:"Показвай кратки подсказки", close:"Затвори",
-    help:"AIRV // Помощ",
-    helpBody:`[CTRL] Поток:
-S1 Идеограма (I/A/B, гесталт) → S2 Сензорика → S3 Скица/Move
-→ S4 Матрица (S,D,AI,AOL) → S5 Интерогиране → S6 Модел → Feedback
+  // STATE MANAGEMENT
+  let state = {
+    viewer: "V-099",
+    trn: "",
+    stage: "IDLE",
+    round: 0,
+    data: {
+      s1: { ideogram: null, i: "", a: "", b: "" },
+      s2: [],
+      s3: { sketch: null, moves: [] },
+      s4: { s: "", d: "", ai: "", ei: "", t: "", it: "", aol: "" },
+      s5: "",
+      s6: ""
+    }
+  };
 
-Клавиши: N Следващ • A AOL Break • F Фокус • ? Помощ`,
-    bootLines:[
-      "[AIRV BOOT] Стартиране на класифицирано обучаващо ядро...",
-      "[SECURITY] Профили за достъп... OK",
-      "[RV PROTOCOL] Зареждане на CRV етапи S1–S6...",
-      "[RV PROTOCOL] AOL / AOL-BREAK хендлери... OK",
-      "[TASKING] TRN генератор онлайн...",
-      "[STORAGE] Local vault готов...",
-      "[IO] JSON import/export... OK",
-      "[READY] Натисни ENTER, за да влезеш в AIRV SYSTEM"
-    ],
-    // welcome & stages
-    missionConsole:"Конзола // Мисия",
-    welcome:`[AIRV] Тази конзола следва CRV етапи S1–S6 (DIA/Army). Ползвай TRN; работи blind; декларирай AOL; напредвай по етапи.
-→ Натисни <N> или „Начало S1“, за да стартираш.
-
-Бележки: CRV I–VI, AOL/AOL‑Break, S4 Matrix (DIA 1985–1986).`,
-    beginS1:"Начало S1",
-
-    s1Title:"S1 // Идеограма",
-    s1Hint:"S1 — Идеограма: 2s жест, после I/A/B и гесталти. Ако се появи „име“, натисни AOL Break.",
-    capture2s:"2s захват", clear:"Изчисти",
-    lblI:"I", lblA:"A", lblB:"B",
-    phI:"curve/angle/loop", phA:"push/pull/fast/slow", phB:"land/water/structure…",
-    gestalts:"Гесталти", addAOL:"Добави AOL", aolBreakBtn:"AOL Break", nextS2:"Следващ (S2)",
-
-    s2Title:"S2 // Сензорика",
-    s2Hint:"S2 — Сензорика: цветове, текстури, температура, звуци, миризми, вкусове, „размерни“.",
-    tokens:"Токени", tips:"Подсказки",
-    tipsText:"colors, textures, temps, sounds, smells, tastes, dimensionals",
-    add:"Добави", nextS3:"Следващ (S3)",
-
-    s3Title:"S3 // Скица & Move",
-    s3Hint:"S3 — Скица & Move: по‑голяма скица; move: ↑, вътре, ←, →, назад, +време.",
-    move:"Move", execute:"Изпълни", log:"Лог", nextS4:"Следващ (S4)",
-
-    s4Title:"S4 // Матрица",
-    s4Hint:"S4 — Матрица: S (сензорика), D (размерни), AI (емоционален импакт), AOL/AOL‑S (анализ).",
-    sSens:"S — сензорика", sDim:"D — размерни", sAI:"AI — естетичен импакт", sAOLS:"AOL / AOL‑S",
-    nextS5:"Следващ (S5)",
-
-    s5Title:"S5 // Интерогиране",
-    s5Hint:"S5 — Интерогиране: функция/цел/контекст. Резюме без „имена“.",
-    func:"Функция", purpose:"Цел", context:"Контекст", summary:"Резюме (без имена)", nextS6:"Следващ (S6)",
-
-    s6Title:"S6 // Модел",
-    s6Hint:"S6 — Модел: горен/страничен изглед, мащаб, връзки.",
-    topView:"Горен изглед", sideView:"Страничен изглед", scale:"Мащаб/бележки", toFeedback:"Feedback",
-
-    fbTitle:"INTEL // Feedback",
-    reveal:"Покажи", target:"Цел", tags:"Тагове",
-    selfScore:"Самооценка (0–7)", autoMatch:"Авто‑съвпадение",
-    exportJson:"Експорт JSON", newSession:"Нова сесия",
-
-    // prompts
-    promptCue:"Въведи кратък cue за задание (по желание, запази viewer blind):",
-    promptTags:"Въведи тагове (със запетая), напр. structure,water,wind:",
-    errNoTasks:"Няма задания във vault. Създай ново.",
-    promptSelectTask:"Избери задание по номер:",
-    errNoCurrentTarget:"Няма текущ target за запазване."
-  },
-  en: {
-    appTitle:"AIRV ▲ Advanced Intelligence Remote Viewing",
-    lang:"Lang:",
-    btnFocus:"Focus", btnHelp:"Help", btnSettings:"Settings",
-    opsStatus:"OPS // Status",
-    viewer:"Viewer:", clearance:"Clearance:",
-    level3:"Level 3", level2:"Level 2", level1:"Level 1",
-    trn:"TRN:", gen:"Gen",
-    blind:"Blind:", on:"ON", off:"OFF",
-    deck:"Deck:", sample:"Sample", custom:"Custom", load:"Load",
-    stage:"Stage:", round:"Round:", time:"Time:", aol:"AOL:",
-    newTask:"New Task", loadTask:"Load Task", saveTask:"Save Task",
-    exportSessions:"Export Sessions", importSessions:"Import",
-    intelLog:"INTEL // Log",
-    resetSession:"Reset Session",
-    hotkeys:"Hotkeys: F Focus • N Next • A AOL • ? Help",
-    aolTitle:"AOL BREAK", aolMsg:"Drop analysis. Breathe. Reset mind.", resume:"Resume",
-    settings:"Settings", stageDur:"Stage durations (seconds)",
-    sounds:"Enable sounds", compliance:"Compliance mode (lock times)",
-    ui:"UI", largeFonts:"Large fonts", hints:"Show brief hints per stage", close:"Close",
-    help:"AIRV // Help",
-    helpBody:`[CTRL] Flow:
-S1 Ideogram (I/A/B, gestalt) → S2 Sensory → S3 Sketch/Move
-→ S4 Matrix (S,D,AI,AOL) → S5 Interrogate → S6 Model → Feedback
-
-Hotkeys: N Next • A AOL Break • F Focus • ? Help`,
-    bootLines:[
-      "[AIRV BOOT] Initializing classified training kernel...",
-      "[SECURITY] Clearance profiles... OK",
-      "[RV PROTOCOL] Loading CRV stages S1–S6...",
-      "[RV PROTOCOL] AOL / AOL-BREAK handlers... OK",
-      "[TASKING] TRN generator online...",
-      "[STORAGE] Local vault ready...",
-      "[IO] JSON import/export... OK",
-      "[READY] Press ENTER to enter AIRV SYSTEM"
-    ],
-    missionConsole:"Mission Console",
-    welcome:`[AIRV] This console follows CRV stages S1–S6 (DIA/Army manuals). Use TRN; run blind; declare AOL; proceed by stages.
-→ Press <N> or "Begin S1" to start.
-
-References: CRV I–VI, AOL/AOL‑Break, S4 Matrix (DIA 1985–1986).`,
-    beginS1:"Begin S1",
-
-    s1Title:"S1 // Ideogram",
-    s1Hint:"S1 — Ideogram: 2s capture, then I/A/B and gestalts. If a 'name' appears → AOL Break.",
-    capture2s:"2s capture", clear:"Clear",
-    lblI:"I", lblA:"A", lblB:"B",
-    phI:"curve/angle/loop", phA:"push/pull/fast/slow", phB:"land/water/structure…",
-    gestalts:"Gestalts", addAOL:"Add AOL", aolBreakBtn:"AOL Break", nextS2:"Next (S2)",
-
-    s2Title:"S2 // Sensory",
-    s2Hint:"S2 — Sensory: list colors, textures, temps, sounds, smells, tastes, dimensionals.",
-    tokens:"Tokens", tips:"Tips", tipsText:"colors, textures, temps, sounds, smells, tastes, dimensionals",
-    add:"Add", nextS3:"Next (S3)",
-
-    s3Title:"S3 // Sketch & Move",
-    s3Hint:"S3 — Sketch & Move: larger sketch; move: up, inside, left, right, back, time+.",
-    move:"Move", execute:"Execute", log:"Log", nextS4:"Next (S4)",
-
-    s4Title:"S4 // Matrix",
-    s4Hint:"S4 — Matrix: S (sensory), D (dimensional), AI (aesthetic), AOL/AOL‑S (analysis).",
-    sSens:"S — sensory", sDim:"D — dimensional", sAI:"AI — aesthetic impact", sAOLS:"AOL / AOL‑S",
-    nextS5:"Next (S5)",
-
-    s5Title:"S5 // Interrogation",
-    s5Hint:"S5 — Interrogate: function/purpose/context; short summary (no naming).",
-    func:"Function", purpose:"Purpose", context:"Context", summary:"Summary (no names)", nextS6:"Next (S6)",
-
-    s6Title:"S6 // Model",
-    s6Hint:"S6 — Model: top/side views, scale, relations.",
-    topView:"Top view", sideView:"Side view", scale:"Scale/notes", toFeedback:"Feedback",
-
-    fbTitle:"INTEL // Feedback",
-    reveal:"Reveal", target:"Target", tags:"Tags",
-    selfScore:"Self‑score (0–7)", autoMatch:"Auto‑match",
-    exportJson:"Export JSON", newSession:"New session",
-
-    promptCue:"Enter short task cue (optional, keep viewer blind):",
-    promptTags:"Enter tags (comma separated), e.g. structure,water,wind:",
-    errNoTasks:"No tasks in vault. Create one.",
-    promptSelectTask:"Select task by number:",
-    errNoCurrentTarget:"No current target to save."
-  }
-};
-function t(k){ return I18N[S.lang][k] ?? k; }
-
-/** ===================== Boot ===================== **/
-const bootLines = ()=> I18N[S.lang].bootLines;
-(function boot(){
-  const log = document.getElementById('bootLog');
-  let i=0; const tick=()=>{ const lines=bootLines(); if(i<lines.length){ log.textContent += lines[i++] + "\n"; setTimeout(tick,350);} }
-  tick();
-  window.addEventListener('keydown', (e)=>{
-    if(e.key==='Enter'){ document.getElementById('boot').style.display='none'; document.getElementById('app').classList.remove('hidden'); init(); }
-  });
-})();
-
-/** ===================== State ===================== **/
-const S = {
-  lang:'bg', focus:false, showHints:false, sounds:false, hard:false,
-  viewer:'RV-001', clearance:'L3',
-  deckType:'sample', deck:[],
-  tasks:[], sessions:[],
-  blind:true, trn:'', round:0, stage:'', stageStart:0, stageDur:0, aolCount:0,
-  s1:{i:'',a:'',b:'',gestalts:[],aol:[],png:null},
-  s2:{tokens:[]},
-  s3:{moves:[],png:null},
-  s4:{S:'',D:'',AI:'',AOLS:''},
-  s5:{func:'',purpose:'',context:'',summary:''},
-  s6:{top:null,side:null,scale:''},
-  fb:{revealed:false,target:null,self:3,autoPct:0}
-};
-const sampleDeck = [
-  {id:"LGT", label:"Lighthouse on sea cliff", tags:["structure","water","wind","light","rock","tall","cylindrical"]},
-  {id:"BRG", label:"Suspension bridge", tags:["structure","metal","water","span","cables","traffic"]},
-  {id:"VOL", label:"Volcano with plume", tags:["mountain","smoke","heat","ash","cone","energy"]},
-  {id:"CAT", label:"Gothic cathedral interior", tags:["structure","stone","arches","echo","cool","dim","religious"]},
-  {id:"OIL", label:"Offshore oil platform", tags:["structure","metal","water","smell","oil","machinery","noise","wind"]},
-  {id:"WAT", label:"Tall waterfall", tags:["water","spray","sound","cliff","mist","cool","rock"]},
-  {id:"STD", label:"Open-air stadium", tags:["structure","oval","crowd","noise","grass","open","lights"]},
-  {id:"GLC", label:"Glacier valley", tags:["ice","cold","blue","crevasse","slow","mountain","silence"]}
-];
-
-/** ===================== Utils ===================== **/
-const $ = s=>document.querySelector(s);
-const log = (msg, cls='') => { const l = document.getElementById('log'); l.innerHTML += (cls?`<span class="${cls}">`:'')+ msg + (cls?'</span>':'') + "\n"; l.scrollTop = l.scrollHeight; }
-const pad = n => String(n).padStart(2,'0');
-const now = () => Math.floor(Date.now()/1000);
-const genTRN = ()=> String(Math.floor(10000000+Math.random()*90000000));
-function startStage(key, seconds){ S.stage = key; S.stageStart = now(); S.stageDur = seconds||0; updateTop(); if(S.stageDur>0) requestAnimationFrame(tick); renderStage(); }
-function tick(){ const used = Math.min(now()-S.stageStart, S.stageDur); const pct=Math.round((used/S.stageDur)*100); $('#stageBar').style.width=pct+'%'; const left=Math.max(0,S.stageDur-used); $('#timer').textContent=`${pad(Math.floor(left/60))}:${pad(left%60)}`; if(left>0 && S.stageDur>0) requestAnimationFrame(tick); }
-function clearStageData(){ S.s1={i:'',a:'',b:'',gestalts:[],aol:[],png:null}; S.s2={tokens:[]}; S.s3={moves:[],png:null}; S.s4={S:'',D:'',AI:'',AOLS:''}; S.s5={func:'',purpose:'',context:'',summary:''}; S.s6={top:null,side:null,scale:''}; S.fb={revealed:false,target:null,self:3,autoPct:0}; }
-function autoMatch(tokens, tags){ const T=new Set(tokens.map(x=>x.toLowerCase())); const G=new Set((tags||[]).map(x=>x.toLowerCase())); let hit=0; G.forEach(g=>{ if(T.has(g)) hit++; }); return Math.round((hit/Math.max(G.size,1))*100); }
-function saveSession(){ const rec={ts:new Date().toISOString(), viewer:S.viewer, trn:S.trn, blind:S.blind, s1:S.s1,s2:S.s2,s3:S.s3,s4:S.s4,s5:S.s5,s6:S.s6,fb:S.fb}; S.sessions.push(rec); localStorage.setItem('airv_sessions', JSON.stringify(S.sessions)); return rec; }
-
-/** ===================== Canvas ===================== **/
-function attachSketchCanvas(id, onSave){
-  const cvs = document.getElementById(id), ctx = cvs.getContext('2d');
-  let drawing=false,last=null; ctx.lineWidth=2; ctx.strokeStyle='#8ef6c5'; ctx.lineCap='round';
-  const get = e=>{ const r=cvs.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:t.clientX-r.left,y:t.clientY-r.top};}
-  const draw= p=>{ if(!last){ last=p; return;} ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; }
-  const down= e=>{ drawing=true; last=null; draw(get(e)); }
-  const move= e=>{ if(drawing) draw(get(e)); }
-  const up  = ()=>{ drawing=false; onSave && onSave(cvs.toDataURL('image/png')); }
-  cvs.addEventListener('mousedown',down); cvs.addEventListener('mousemove',move); window.addEventListener('mouseup',up);
-  cvs.addEventListener('touchstart',down,{passive:false}); cvs.addEventListener('touchmove',e=>{e.preventDefault();move(e)},{passive:false}); cvs.addEventListener('touchend',up);
-  return { clear(){ ctx.clearRect(0,0,cvs.width,cvs.height); onSave && onSave(null);} };
-}
-
-/** ===================== RENDER: Top/i18n ===================== **/
-function applyLangStatic(){
-  // Top bar
-  $('#appTitle').textContent = t('appTitle');
-  $('#lblLang').textContent = t('lang');
-  $('#focusBtn').textContent = t('btnFocus');
-  $('#settingsBtn').textContent = t('btnSettings');
-  // Left titles & labels
-  $('#opsTitle').textContent = t('opsStatus');
-  $('#lblViewer').textContent = t('viewer');
-  $('#lblClearance').textContent = t('clearance');
-  $('#optL3').textContent = t('level3'); $('#optL2').textContent = t('level2'); $('#optL1').textContent = t('level1');
-  $('#lblTRN').textContent = t('trn'); $('#genTRN').textContent = t('gen');
-  $('#lblBlind').textContent = t('blind'); $('#optBlindOn').textContent = t('on'); $('#optBlindOff').textContent = t('off');
-  $('#lblDeck').textContent = t('deck'); $('#optDeckSample').textContent = t('sample'); $('#optDeckCustom').textContent = t('custom'); $('#loadDeck').textContent = t('load');
-  $('#lblStage').textContent = t('stage'); $('#lblRound').textContent = t('round'); $('#lblTime').textContent = t('time'); $('#lblAOL').textContent = t('aol');
-  $('#intelTitle').textContent = t('intelLog');
-  $('#resetSession').textContent = t('resetSession');
-  $('#hotkeysRow').textContent = t('hotkeys');
-  // Overlays
-  $('#aolTitle').textContent = t('aolTitle'); $('#aolMsg').textContent = t('aolMsg'); $('#endAOL').textContent = t('resume');
-  $('#settingsTitle').textContent = t('settings'); $('#lblStageDur').textContent = t('stageDur'); $('#lblSounds').textContent = t('sounds'); $('#lblCompliance').textContent = t('compliance'); $('#lblUI').textContent = t('ui'); $('#lblLargeFonts').textContent = t('largeFonts'); $('#lblHints').textContent = t('hints'); $('#closeSettings').textContent = t('close');
-  $('#helpTitle').textContent = t('help'); $('#helpBody').textContent = t('helpBody'); $('#closeHelp').textContent = t('close');
-}
-function updateTop(){
-  $('#trn').textContent = S.trn || '—';
-  $('#stageName').textContent = S.stage || '—';
-  $('#round').textContent = String(S.round);
-  $('#aolCount').textContent = String(S.aolCount);
-}
-
-/** ===================== Stage Renderers ===================== **/
-function renderStage(){
-  const body = $('#stageBody');
-  const hint = key => S.showHints ? `<p class="small muted">${t(key)}</p>` : '';
-
-  if(!S.stage){ // welcome
-    $('#stageTitle').textContent = t('missionConsole');
-    body.innerHTML = `
-      <div class="term">${t('welcome')}</div>
-      <div class="row"><button class="btn amber" id="begin">${t('beginS1')}</button></div>`;
-    $('#begin').onclick = ()=> startStage('s1', getDur('S1'));
-    return;
+  function log(msg, type="info") {
+    const l = document.getElementById('log');
+    const time = new Date().toLocaleTimeString().split(' ')[0];
+    l.innerHTML = `<div>[${time}] <span class="${type}">${msg}</span></div>` + l.innerHTML;
   }
 
-  if(S.stage==='s1'){
-    $('#stageTitle').textContent = t('s1Title');
-    body.innerHTML = `
-      ${hint('s1Hint')}
-      <div class="grid g2">
-        <div>
-          <div class="row"><button class="btn" id="cap2s">${t('capture2s')}</button><button class="btn" id="clr1">${t('clear')}</button></div>
-          <canvas id="c1" class="sk" width="900" height="240"></canvas>
-        </div>
-        <div>
-          <div class="row">
-            <div><div class="small muted">${t('lblI')}</div><input id="s1i" placeholder="${t('phI')}"/></div>
-            <
+  function generateTRN() {
+    state.trn = `${Math.floor(1000+Math.random()*8999)}-${Math.floor(1000+Math.random()*8999)}`;
+    document.getElementById('trn').value = state.trn;
+    log(`NEW COORDINATES ASSIGNED: ${state.trn}`, 'amber');
+  }
+
+  function changeStage(s) {
+    state.stage = s;
+    state.round++;
+    document.getElementById('st-val').textContent = s;
+    document.getElementById('rd-val').textContent = state.round;
+    renderStage();
+  }
+
+  function renderStage() {
+    const area = document.getElementById('stage-content');
+    const title = document.getElementById('stage-title');
+    title.textContent = `PROTOCOL: ${state.stage}`;
+    area.innerHTML = "";
+
+    switch(state.stage) {
+      case 'S1':
+        area.innerHTML = `
+          <p class="green-dim">S1: SPONTANEOUS IDEOGRAM & GESTALT</p>
+          <canvas id="s1-cvs" class="sk" height="200"></canvas>
+          <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 10px;">
+            <input type="text" id="s1i" placeholder="I (Incline/Curve)" onchange="saveS1()">
+            <input type="text" id="s1a" placeholder="A (Motion/Texture)" onchange="saveS1()">
+            <input type="text" id="s1b" placeholder="B (Gestalt/Object)" onchange="saveS1()">
+          </div>
+          <button class="btn" style="margin-top:10px" onclick="clearCvs('s1-cvs')">CLEAR CANVAS</button>
+        `;
+        initCanvas('s1-cvs');
+        break;
+
+      case 'S2':
+        area.innerHTML = `
+          <p class="green-dim">S2: SENSORY DATA (COLORS, TEXTURES, TEMPERATURES)</p>
+          <textarea id="s2data" style="height:200px" placeholder="Enter sensory perceptions... (e.g. Rough, cold, blue, metallic smell)" onchange="saveS2()">${state.data.s2}</textarea>
+        `;
+        break;
+
+      case 'S4':
+        area.innerHTML = `
+          <p class="green-dim">S4: ANALYTICAL MATRIX (DIA STANDARD)</p>
+          <div class="matrix-grid">
+            <div class="s4-col"><label>S</label><textarea id="m-s">${state.data.s4.s}</textarea></div>
+            <div class="s4-col"><label>D</label><textarea id="m-d">${state.data.s4.d}</textarea></div>
+            <div class="s4-col"><label>AI</label><textarea id="m-ai">${state.data.s4.ai}</textarea></div>
+            <div class="s4-col"><label>EI</label><textarea id="m-ei">${state.data.s4.ei}</textarea></div>
+            <div class="s4-col"><label>T</label><textarea id="m-t">${state.data.s4.t}</textarea></div>
+            <div class="s4-col"><label>IT</label><textarea id="m-it">${state.data.s4.it}</textarea></div>
+            <div class="s4-col"><label>AOL/S</label><textarea id="m-aol" style="border-color:var(--amber)">${state.data.s4.aol}</textarea></div>
+          </div>
+          <button class="btn" style="margin-top:10px" onclick="saveS4()">LOCK MATRIX DATA</button>
+        `;
+        break;
+
+      default:
+        area.innerHTML = `<div class="term">READY FOR INPUT. SELECT STAGE TO START PROTOCOL.</div>`;
+    }
+  }
+
+  // CANVAS LOGIC
+  function initCanvas(id) {
+    const cvs = document.getElementById(id);
+    const ctx = cvs.getContext('2d');
+    let drawing = false;
+    ctx.strokeStyle = "#00ff41";
+    ctx.lineWidth = 2;
+
+    cvs.onmousedown = (e) => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); };
+    cvs.onmousemove = (e) => { if(drawing) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } };
+    window.onmouseup = () => { drawing = false; };
+  }
+
+  function clearCvs(id) {
+    const cvs = document.getElementById(id);
+    cvs.getContext('2d').clearRect(0,0,cvs.width,cvs.height);
+  }
+
+  // DATA SAVING
+  function saveS2() { state.data.s2 = document.getElementById('s2data').value; log("S2 DATA SAVED"); }
+  function saveS4() {
+    state.data.s4 = {
+      s: document.getElementById('m-s').value,
+      d: document.getElementById('m-d').value,
+      ai: document.getElementById('m-ai').value,
+      ei: document.getElementById('m-ei').value,
+      t: document.getElementById('m-t').value,
+      it: document.getElementById('m-it').value,
+      aol: document.getElementById('m-aol').value,
+    };
+    log("S4 MATRIX UPDATED", "ok");
+  }
+
+  function exportReport() {
+    let report = `--- CLASSIFIED INTEL REPORT ---\n`;
+    report += `VIEWER: ${state.viewer} | TRN: ${state.trn}\n`;
+    report += `STAGE 2 SENSORY: ${state.data.s2}\n`;
+    report += `STAGE 4 MATRIX:\n [S]: ${state.data.s4.s}\n [D]: ${state.data.s4.d}\n [AOL]: ${state.data.s4.aol}\n`;
+    report += `--- END OF REPORT ---`;
+    
+    const win = window.open("", "_blank");
+    win.document.write(`<pre style="background:#000; color:#00ff41; padding:20px;">${report}</pre>`);
+    log("REPORT GENERATED IN NEW WINDOW");
+  }
+
+  // UTILS
+  setInterval(() => {
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-GB');
+  }, 1000);
+
+  function resetSession() {
+    if(confirm("CONFIRM DATA PURGE?")) {
+      location.reload();
+    }
+  }
+
+  window.onload = () => {
+    log("SYSTEM ONLINE. WAITING FOR TRN...");
+    renderStage();
+  };
+</script>
+
+</body>
+</html>
