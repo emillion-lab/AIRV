@@ -3,192 +3,169 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AIRV v9.0 — ANALYTIC TERMINAL</title>
+<title>AIRV v10.0 — COMPACT ANALYTIC</title>
 <style>
   :root {
-    --bg: #050805; --pnl: #0a0f0a; --brd: #1b2b1b;
-    --grn: #00ff66; --grn-d: #006622; --amb: #ffaa00;
-    --red: #ff3333; --txt: #d1ffd1; --fnt: "Courier New", monospace;
+    --bg: #030503; --pnl: #0a0c0a; --brd: #1a231a;
+    --grn: #00ff66; --grn-d: #004411; --amb: #ffaa00;
+    --txt: #c0ffc0; --fnt: "Segoe UI", "Courier New", monospace;
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body { 
-    margin: 0; background: var(--bg); color: var(--txt); 
-    font: 13px/1.4 var(--fnt); text-transform: uppercase;
-    min-height: 100vh; display: flex; flex-direction: column;
-  }
-  
-  /* Layout Structures */
-  header { padding: 15px; border-bottom: 2px solid var(--brd); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background: var(--pnl); gap: 10px; }
-  .main-container { display: flex; flex: 1; flex-direction: row; }
-  
-  .side { width: 300px; border-right: 2px solid var(--brd); padding: 15px; background: #080a08; display: flex; flex-direction: column; gap: 12px; }
-  .work { flex: 1; padding: 25px; overflow-y: auto; min-height: 450px; }
-  .log-panel { width: 280px; border-left: 2px solid var(--brd); padding: 15px; background: #080a08; font-size: 10px; }
-
-  /* Responsive Fix for GitHub/Mobile */
-  @media (max-width: 1024px) {
-    .main-container { flex-direction: column; }
-    .side, .log-panel { width: 100%; border: none; border-bottom: 2px solid var(--brd); }
-    .work { order: -1; } /* Work area comes first on mobile */
+    background: var(--bg); color: var(--txt); 
+    font-family: var(--fnt); text-transform: uppercase;
+    display: flex; justify-content: center; min-height: 100vh;
   }
 
-  /* Meters & Indicators */
-  .bar-bg { height: 16px; background: #000; border: 1px solid var(--brd); margin: 6px 0; position: relative; }
-  .bar-fill { height: 100%; width: 0%; background: var(--grn); transition: 0.5s ease-in-out; box-shadow: 0 0 10px var(--grn-d); }
-  .threshold { position: absolute; left: 50%; top: 0; bottom: 0; border-left: 1px dashed var(--red); z-index: 2; }
-  
-  /* Buttons & Inputs */
-  .btn { background: transparent; border: 1px solid var(--grn-d); color: var(--grn); padding: 12px; cursor: pointer; text-align: left; font-family: inherit; width: 100%; text-transform: uppercase; }
-  .btn:hover, .btn.active { background: var(--grn-d); color: #000; font-weight: bold; }
+  /* Main Fixed Container */
+  .app-container {
+    width: 100%; max-width: 1200px;
+    background: var(--pnl); border: 1px solid var(--brd);
+    display: flex; flex-direction: column; height: 100vh;
+  }
+
+  header { 
+    padding: 15px 25px; border-bottom: 2px solid var(--brd);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .main-flex { display: flex; flex: 1; overflow: hidden; }
+
+  /* Left Panel */
+  .sidebar {
+    width: 300px; border-right: 2px solid var(--brd);
+    padding: 20px; display: flex; flex-direction: column; gap: 15px;
+    background: #060806; flex-shrink: 0;
+  }
+
+  /* Center Workspace */
+  .workspace { flex: 1; padding: 30px; overflow-y: auto; background: var(--bg); }
+
+  /* Elements */
+  .btn { 
+    background: transparent; border: 1px solid var(--grn-d); color: var(--grn); 
+    padding: 14px; cursor: pointer; text-align: left; font-size: 11px; font-family: inherit;
+    width: 100%; transition: 0.2s;
+  }
+  .btn:hover, .btn.active { background: var(--grn-d); color: #fff; border-color: var(--grn); }
   .btn-amb { border-color: var(--amb); color: var(--amb); }
 
-  textarea, input { background: #000; border: 1px solid var(--brd); color: var(--grn); padding: 15px; font: 15px var(--fnt); width: 100%; outline: none; margin-top: 5px; margin-bottom: 15px; resize: vertical; }
-  .label { font-size: 10px; color: var(--grn-d); letter-spacing: 1px; }
+  textarea, input { 
+    background: #000; border: 1px solid var(--brd); color: var(--grn); 
+    padding: 15px; font-size: 14px; width: 100%; outline: none; margin-top: 10px;
+  }
+
+  .bar-wrap { background: #000; height: 12px; border: 1px solid var(--brd); margin: 5px 0; position: relative; }
+  .bar-fill { height: 100%; width: 0%; background: var(--grn); transition: 0.4s; }
   
-  .report { background: #000; padding: 25px; border: 1px solid var(--grn-d); white-space: pre-wrap; line-height: 1.6; border-radius: 4px; }
+  /* Responsive */
+  @media (max-width: 850px) {
+    .main-flex { flex-direction: column; overflow-y: auto; }
+    .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 2px solid var(--brd); }
+    .app-container { height: auto; }
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <div style="font-weight: bold; color: var(--grn); letter-spacing: 2px;">AIRV // ANALYTIC_SYNC_v9.0</div>
-  <div style="display:flex; gap:15px; align-items:center;">
-    <select id="lang" onchange="updateLang()" style="background:#000; color:var(--grn); border:1px solid var(--brd); padding:5px;">
+<div class="app-container">
+  <header>
+    <div style="font-weight:900; color:var(--grn); letter-spacing:3px;">AIRV // ANALYTIC_FORCE_v10</div>
+    <select id="lang" onchange="initLang()" style="background:#000; color:var(--grn); padding:4px; border:1px solid var(--brd);">
       <option value="bg">БЪЛГАРСКИ</option>
       <option value="en">ENGLISH</option>
-      <option value="cz">ČEŠTINA</option>
     </select>
-    <div id="time" style="color:var(--amb)">00:00:00</div>
+  </header>
+
+  <div class="main-flex">
+    <aside class="sidebar">
+      <div id="nav-btns" style="display:flex; flex-direction:column; gap:8px;">
+        <button class="btn" id="b-s1" onclick="nav('s1')">S1: IDEOGRAM</button>
+        <button class="btn" id="b-s2" onclick="nav('s2')">S2: SENSORY</button>
+        <button class="btn" id="b-s4" onclick="nav('s4')">S4: MATRIX</button>
+        <button class="btn" id="b-s5" onclick="nav('s5')">S5: SUMMARY</button>
+      </div>
+
+      <div style="margin-top:20px; border-top: 1px solid var(--brd); padding-top:20px;">
+        <span style="font-size:10px; color:var(--grn-d)" id="t-sig">СИЛА НА СИГНАЛА</span>
+        <div class="bar-wrap"><div id="sig-bar" class="bar-fill"></div></div>
+        <span style="font-size:10px; color:var(--grn-d)" id="t-aol">АНАЛИТИЧЕН ШУМ</span>
+        <div class="bar-wrap"><div id="aol-bar" class="bar-fill" style="background:var(--amb)"></div></div>
+      </div>
+
+      <div style="margin-top:auto;">
+        <div id="trn-box" style="color:var(--amb); font-size:22px; text-align:center; margin-bottom:10px;">---- - ----</div>
+        <button class="btn btn-amb" onclick="startNew()" id="t-new">НОВА СЕСИЯ</button>
+        <button class="btn" style="margin-top:8px; border-color:var(--grn)" onclick="nav('rep')" id="t-rep">ДОКЛАД</button>
+      </div>
+    </aside>
+
+    <main class="workspace" id="ws">
+       <div style="text-align:center; opacity:0.3; margin-top:100px;">SYSTEM READY. INITIALIZE SESSION.</div>
+    </main>
   </div>
-</header>
-
-<div class="main-container">
-  <aside class="side">
-    <span class="label" id="lbl-protocol">ПРОТОКОЛ</span>
-    <button class="btn" id="b-s1" onclick="nav('s1')">S1: IDEOGRAM</button>
-    <button class="btn" id="b-s2" onclick="nav('s2')">S2: SENSORY</button>
-    <button class="btn" id="b-s4" onclick="nav('s4')">S4: MATRIX</button>
-    <button class="btn" id="b-s5" onclick="nav('s5')">S5: SUMMARY</button>
-    
-    <div style="margin-top:10px; padding:10px; background:rgba(0,255,100,0.03); border:1px solid var(--brd);">
-      <span class="label" id="lbl-signal">SIGNAL STRENGTH</span>
-      <div class="bar-bg"><div class="threshold"></div><div id="sig-bar" class="bar-fill"></div></div>
-      <span class="label" id="lbl-noise">ANALYTIC NOISE (AOL)</span>
-      <div class="bar-bg"><div id="aol-bar" class="bar-fill" style="background:var(--amb)"></div></div>
-      <div id="profiler" style="font-size:10px; margin-top:10px; color:var(--grn); font-weight:bold;">DATA: WAITING...</div>
-    </div>
-
-    <div style="margin-top: auto; padding-top: 15px;">
-      <span class="label" id="lbl-trn">КООРДИНАТИ</span>
-      <div id="trn-val" style="font-size: 20px; color: var(--amb); margin: 5px 0;">---- - ----</div>
-      <button class="btn btn-amb" onclick="resetSession()" id="lbl-new">НОВА СЕСИЯ</button>
-      <button class="btn" onclick="nav('rep')" style="margin-top:8px; border-color:var(--grn)" id="lbl-rep">ГЕНЕРИРАЙ ДОКЛАД</button>
-    </div>
-  </aside>
-
-  <main class="work" id="ws">
-    <div style="text-align:center; padding-top:100px; color:var(--grn-d);" id="lbl-wait">ИНИЦИАЛИЗИРАЙТЕ НОВА СЕСИЯ ЗА НАЧАЛО</div>
-  </main>
-
-  <aside class="log-panel">
-    <span class="label" id="lbl-log">СИСТЕМЕН ЛОГ</span>
-    <div id="log" style="margin-top:10px; color:var(--grn-d); line-height:1.2;"></div>
-  </aside>
 </div>
 
 <script>
-const TEXTS = {
-  bg: {
-    protocol: "ПРОТОКОЛ", signal: "СИЛА НА СИГНАЛА", noise: "АНАЛИТИЧЕН ШУМ", trn: "КООРДИНАТИ", new: "НОВА СЕСИЯ", rep: "ФИНАЛИЗИРАЙ ДОКЛАД", log: "СИСТЕМЕН ЛОГ", wait: "ИНИЦИАЛИЗИРАЙТЕ НОВА СЕСИЯ ЗА НАЧАЛО",
-    s1_h: "ЕТАП 1: Опишете първия визуален импулс (твърдо, течно, енергия).",
-    s2_h: "ЕТАП 2: ВАЖНО! Напълнете бара със сетивни данни (цвят, звук, мирис).",
-    s4_h: "ЕТАП 4: Аналитична матрица. Разделете сигналите от шума (AOL).",
-    s5_h: "ЕТАП 5: Обобщение на разузнавателните данни.",
-    prof: "ПРОФИЛ: "
-  },
-  en: {
-    protocol: "PROTOCOL", signal: "SIGNAL STRENGTH", noise: "ANALYTIC NOISE", trn: "COORDINATES", new: "NEW SESSION", rep: "FINALIZE REPORT", log: "SYSTEM LOG", wait: "INITIALIZE NEW SESSION TO START",
-    s1_h: "STAGE 1: Describe the first visual impulse (solid, liquid, energy).",
-    s2_h: "STAGE 2: IMPORTANT! Fill the signal bar with sensory data (color, sound).",
-    s4_h: "STAGE 4: Matrix analysis. Separate signal from noise (AOL).",
-    s5_h: "STAGE 5: Final data summary and conclusion.",
-    prof: "PROFILE: "
-  }
+const STR = {
+  bg: { sig: "СИЛА НА СИГНАЛА", aol: "АНАЛИТИЧЕН ШУМ", new: "НОВА СЕСИЯ", rep: "ФИНАЛИЗИРАЙ", s1_h: "ЕТАП 1: Начертайте импулса.", s2_h: "ЕТАП 2: СЕТИВА (Цветове, миризми, звуци).", s4_h: "ЕТАП 4: МАТРИЦА (Данни срещу Шум).", s5_h: "ЕТАП 5: ЗАКЛЮЧЕНИЕ." },
+  en: { sig: "SIGNAL STRENGTH", aol: "ANALYTIC NOISE", new: "NEW SESSION", rep: "FINALIZE", s1_h: "STAGE 1: Sketch the impulse.", s2_h: "STAGE 2: SENSORY (Colors, smells, sounds).", s4_h: "STAGE 4: MATRIX (Data vs Noise).", s5_h: "STAGE 5: CONCLUSION." }
 };
 
-let state = { lang: 'bg', stage: 'none', trn: '---- - ----', data: { s1:'', s2:'', s4s:'', s4d:'', s4aol:'', s5:'' } };
+let state = { lang: 'bg', stage: 'none', trn: '', data: { s1:'', s2:'', s4s:'', s4d:'', s4aol:'', s5:'' } };
 
-function updateLang() {
+function initLang() {
   state.lang = document.getElementById('lang').value;
-  const t = TEXTS[state.lang] || TEXTS.en;
-  document.getElementById('lbl-protocol').innerText = t.protocol;
-  document.getElementById('lbl-signal').innerText = t.signal;
-  document.getElementById('lbl-noise').innerText = t.noise;
-  document.getElementById('lbl-trn').innerText = t.trn;
-  document.getElementById('lbl-new').innerText = t.new;
-  document.getElementById('lbl-rep').innerText = t.rep;
-  document.getElementById('lbl-log').innerText = t.log;
-  if(state.stage === 'none') document.getElementById('ws').innerText = t.wait;
-  else nav(state.stage);
+  const t = STR[state.lang];
+  document.getElementById('t-sig').innerText = t.sig;
+  document.getElementById('t-aol').innerText = t.aol;
+  document.getElementById('t-new').innerText = t.new;
+  document.getElementById('t-rep').innerText = t.rep;
+  if(state.stage !== 'none') nav(state.stage);
 }
 
-function resetSession() {
+function startNew() {
   state.trn = `${Math.floor(1000+Math.random()*8999)}-${Math.floor(1000+Math.random()*8999)}`;
   state.data = { s1:'', s2:'', s4s:'', s4d:'', s4aol:'', s5:'' };
-  document.getElementById('trn-val').innerText = state.trn;
-  log(`SYSTEM RESET. NEW TARGET: ${state.trn}`);
+  document.getElementById('trn-box').innerText = state.trn;
   nav('s1');
 }
 
 function nav(s) {
   state.stage = s;
   const ws = document.getElementById('ws');
-  const t = TEXTS[state.lang] || TEXTS.en;
+  const t = STR[state.lang];
   document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
   if(document.getElementById('b-'+s)) document.getElementById('b-'+s).classList.add('active');
   
-  ws.innerHTML = `<div style="color:var(--amb); margin-bottom:20px;">>> ${t[s+'_h']}</div>`;
+  ws.innerHTML = `<h3 style="color:var(--amb); margin-bottom:15px;">>> ${t[s+'_h']}</h3>`;
 
   switch(s) {
-    case 's1': ws.innerHTML += `<span class="label">GESTALT</span><textarea oninput="state.data.s1=this.value">${state.data.s1}</textarea>`; break;
-    case 's2': ws.innerHTML += `<span class="label">SENSORY DATA</span><textarea style="height:300px" oninput="state.data.s2=this.value; calc()">${state.data.s2}</textarea>`; break;
+    case 's1': ws.innerHTML += `<textarea oninput="state.data.s1=this.value">${state.data.s1}</textarea>`; break;
+    case 's2': ws.innerHTML += `<textarea style="height:300px" oninput="state.data.s2=this.value; calc()">${state.data.s2}</textarea>`; break;
     case 's4': ws.innerHTML += `
-      <span class="label">SENSORY (S)</span><input oninput="state.data.s4s=this.value; calc()" value="${state.data.s4s}">
-      <span class="label">DIMENSIONS (D)</span><input oninput="state.data.s4d=this.value; calc()" value="${state.data.s4d}">
-      <span class="label" style="color:var(--amb)">AOL (NOISE)</span><textarea oninput="state.data.s4aol=this.value; calc()">${state.data.s4aol}</textarea>`; break;
-    case 's5': ws.innerHTML += `<span class="label">CONCLUSION</span><textarea style="height:300px" oninput="state.data.s5=this.value">${state.data.s5}</textarea>`; break;
+      <input placeholder="SENSORY" oninput="state.data.s4s=this.value; calc()" value="${state.data.s4s}">
+      <input placeholder="DIMENSIONS" oninput="state.data.s4d=this.value; calc()" value="${state.data.s4d}">
+      <textarea placeholder="AOL (NOISE)" oninput="state.data.s4aol=this.value; calc()">${state.data.s4aol}</textarea>`; break;
+    case 's5': ws.innerHTML += `<textarea style="height:300px" oninput="state.data.s5=this.value">${state.data.s5}</textarea>`; break;
     case 'rep': showRep(); break;
   }
   calc();
 }
 
 function calc() {
-  const t = (state.data.s2 + ' ' + state.data.s4s + ' ' + state.data.s4d).trim();
-  const words = t ? t.split(/\s+/).length : 0;
-  const sig = Math.min(words * 6, 100);
-  const aol = Math.min(state.data.s4aol.length * 1.2, 100);
-  
-  document.getElementById('sig-bar').style.width = sig + '%';
-  document.getElementById('aol-bar').style.width = aol + '%';
-  
-  let p = "UNKNOWN";
-  if(sig > 20) p = /метал|сграда|права|бетон|metal|building|structure/i.test(t) ? "ARTIFICIAL" : "NATURAL";
-  document.getElementById('profiler').innerText = (TEXTS[state.lang].prof || "PROFILE: ") + p;
+  const words = (state.data.s2 + ' ' + state.data.s4s + ' ' + state.data.s4d).trim().split(/\s+/).filter(x => x.length > 2).length;
+  document.getElementById('sig-bar').style.width = Math.min(words * 8, 100) + '%';
+  document.getElementById('aol-bar').style.width = Math.min(state.data.s4aol.length * 1.5, 100) + '%';
 }
 
 function showRep() {
-  const sig = parseInt(document.getElementById('sig-bar').style.width);
-  const rep = `[ AIRV INTEL REPORT ]\nTRN: ${state.trn}\nSTATUS: ${sig > 50 ? 'VALID' : 'INSUFFICIENT DATA'}\n\nGESTALT: ${state.data.s1}\nPROFILE: ${document.getElementById('profiler').innerText}\nSIGNAL: ${sig}%\n\nCONCLUSION: ${state.data.s5 || 'N/A'}`;
-  document.getElementById('ws').innerHTML = `<div class="report">${rep}</div><button class="btn" style="margin-top:20px; border-color:var(--grn)" onclick="window.print()">PRINT TO PDF</button>`;
+  const sig = document.getElementById('sig-bar').style.width;
+  const report = `[ FINAL INTEL REPORT ]\nTARGET: ${state.trn}\nSIGNAL: ${sig}\n\nDATA:\n${state.data.s2}\n\nCONCLUSION:\n${state.data.s5 || 'N/A'}`;
+  document.getElementById('ws').innerHTML = `<div style="background:#000; padding:20px; border:1px solid var(--grn-d); white-space:pre-wrap;">${report}</div>`;
 }
 
-function log(m) {
-  const l = document.getElementById('log');
-  l.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${m}</div>` + l.innerHTML;
-}
-
-setInterval(() => { document.getElementById('time').innerText = new Date().toLocaleTimeString('en-GB'); }, 1000);
-window.onload = updateLang;
+window.onload = initLang;
 </script>
 </body>
 </html>
