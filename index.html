@@ -2,185 +2,476 @@
 <html lang="bg">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+<meta name="description" content="AIRV - Advanced Intelligence Remote Viewing Protocol"/>
 <title>AIRV v8.0 – ADVANCED INTELLIGENCE REMOTE VIEWING</title>
 <style>
   :root {
     --bg: #050705; --panel: #0d110d; --border: #1a2a1a;
-    --green: #00ff66; --green-dim: #006622; --amber: #ffaa00;
+    --green: #00ff66; --green-dim: #00aa44; --amber: #ffaa00;
     --red: #ff3333; --txt: #d1ffd1; --font: "Courier New", monospace;
   }
-  * { box-sizing: border-box; }
+  
+  * { 
+    box-sizing: border-box; 
+    margin: 0;
+    padding: 0;
+  }
+  
   body { 
-    margin: 0; background: var(--bg); color: var(--txt); 
-    font: 13px/1.4 var(--font); text-transform: uppercase;
-    min-height: 100vh; overflow-x: hidden;
+    background: var(--bg); 
+    color: var(--txt); 
+    font-family: var(--font);
+    text-transform: uppercase;
+    min-height: 100vh; 
+    overflow-x: hidden;
+    font-size: 16px;
+    line-height: 1.5;
   }
   
   .header { 
-    min-height: 50px; border-bottom: 2px solid var(--border); 
-    display: flex; align-items: center; justify-content: space-between; 
-    padding: 10px 15px; background: var(--panel); flex-wrap: wrap; gap: 10px;
+    min-height: 60px;
+    border-bottom: 2px solid var(--border); 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 12px 16px; 
+    background: var(--panel); 
+    flex-wrap: wrap; 
+    gap: 12px;
   }
+  
   .header-title { 
-    letter-spacing: 2px; font-weight: bold; color: var(--green); 
-    font-size: clamp(10px, 2.5vw, 13px);
+    letter-spacing: 1px; 
+    font-weight: bold; 
+    color: var(--green); 
+    font-size: 14px;
+    line-height: 1.3;
   }
-  .header-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  
+  .header-controls { 
+    display: flex; 
+    gap: 12px; 
+    align-items: center; 
+    flex-wrap: wrap; 
+  }
   
   .main-grid { 
-    display: grid; 
-    grid-template-columns: 1fr; 
-    min-height: calc(100vh - 70px);
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 80px);
   }
   
   @media (min-width: 768px) {
-    .main-grid { grid-template-columns: 260px 1fr; }
+    .main-grid { 
+      display: grid;
+      grid-template-columns: 280px 1fr; 
+    }
   }
   
   @media (min-width: 1200px) {
-    .main-grid { grid-template-columns: 280px 1fr 300px; }
+    .main-grid { 
+      grid-template-columns: 300px 1fr 320px; 
+    }
   }
   
-  .sidebar, .log-panel { 
-    padding: 15px; display: flex; flex-direction: column; gap: 10px; 
-    background: #080a08; border-bottom: 2px solid var(--border);
+  .sidebar { 
+    padding: 16px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    background: #080a08; 
+    border-bottom: 2px solid var(--border);
+    order: 1;
   }
   
   @media (min-width: 768px) {
-    .sidebar { border-right: 2px solid var(--border); border-bottom: none; }
+    .sidebar { 
+      border-right: 2px solid var(--border); 
+      border-bottom: none;
+      order: 0;
+    }
+  }
+  
+  .log-panel { 
+    display: none;
+    padding: 16px; 
+    background: #080a08;
+    border-top: 2px solid var(--border);
+    max-height: 300px;
+    overflow-y: auto;
+    order: 3;
+  }
+  
+  .log-panel.mobile-visible {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
   
   @media (min-width: 1200px) {
     .log-panel { 
+      display: flex !important;
+      flex-direction: column;
+      gap: 10px;
       border-left: 2px solid var(--border); 
-      border-bottom: none; display: flex !important; 
+      border-top: none;
+      max-height: none;
+      order: 2;
     }
   }
   
-  .log-panel { display: none; }
-  
   .content { 
-    padding: 15px; overflow-y: auto; background: var(--bg); 
-    position: relative; min-height: 400px;
+    padding: 20px; 
+    overflow-y: auto; 
+    background: var(--bg); 
+    min-height: 400px;
+    order: 2;
+  }
+  
+  @media (min-width: 768px) {
+    .content {
+      order: 1;
+    }
+  }
+  
+  /* Canvas Drawing Area */
+  .canvas-container {
+    background: #000;
+    border: 2px solid var(--border);
+    margin: 10px 0;
+    position: relative;
+    touch-action: none;
+    max-width: 100%;
+  }
+  
+  #drawCanvas {
+    display: block;
+    cursor: crosshair;
+    touch-action: none;
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .canvas-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .canvas-btn {
+    background: transparent;
+    border: 2px solid var(--green-dim);
+    color: var(--green);
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: var(--font);
+    text-transform: uppercase;
+    transition: all 0.2s;
+    touch-action: manipulation;
+  }
+  
+  .canvas-btn:hover {
+    background: var(--green);
+    color: #000;
+  }
+  
+  .canvas-btn.clear {
+    border-color: var(--red);
+    color: var(--red);
+  }
+  
+  .canvas-btn.clear:hover {
+    background: var(--red);
+    color: #000;
+  }
+  
+  .color-picker {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  
+  .color-option {
+    width: 30px;
+    height: 30px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    touch-action: manipulation;
+  }
+  
+  .color-option:hover, .color-option.active {
+    border-color: var(--green);
+    box-shadow: 0 0 10px var(--green-dim);
   }
   
   /* Bars */
   .meter { 
-    height: 12px; background: #000; border: 1px solid var(--border); 
-    margin: 5px 0; position: relative; overflow: hidden;
+    height: 16px; 
+    background: #000; 
+    border: 1px solid var(--border); 
+    margin: 8px 0; 
+    position: relative; 
+    overflow: hidden;
   }
+  
   .meter-fill { 
-    height: 100%; width: 0%; background: var(--green); 
-    transition: width 0.4s ease; box-shadow: 0 0 10px var(--green-dim); 
+    height: 100%; 
+    width: 0%; 
+    background: var(--green); 
+    transition: width 0.4s ease; 
+    box-shadow: 0 0 12px var(--green-dim); 
   }
+  
   .target-line { 
-    position: absolute; left: 50%; top: 0; bottom: 0; 
-    border-left: 1px dashed var(--red); z-index: 5; 
+    position: absolute; 
+    left: 50%; 
+    top: 0; 
+    bottom: 0; 
+    border-left: 2px dashed var(--red); 
+    z-index: 5; 
   }
   
   .btn { 
-    background: transparent; border: 1px solid var(--green-dim); 
-    color: var(--green); padding: 12px 8px; cursor: pointer; 
-    text-align: left; font-size: 11px; width: 100%; 
-    text-transform: uppercase; transition: all 0.2s;
+    background: transparent; 
+    border: 2px solid var(--green-dim); 
+    color: var(--green); 
+    padding: 14px 12px; 
+    cursor: pointer; 
+    text-align: left; 
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%; 
+    text-transform: uppercase; 
+    transition: all 0.2s;
     touch-action: manipulation;
+    font-family: var(--font);
+    letter-spacing: 0.5px;
   }
+  
   .btn:hover, .btn.active { 
-    background: var(--green-dim); color: #000; font-weight: bold; 
+    background: var(--green); 
+    color: #000; 
+    box-shadow: 0 0 15px var(--green-dim);
   }
-  .btn-amber { border-color: var(--amber); color: var(--amber); }
-  .btn-amber:hover, .btn-amber.active { background: var(--amber); color: #000; }
+  
+  .btn:active {
+    transform: scale(0.98);
+  }
+  
+  .btn-amber { 
+    border-color: var(--amber); 
+    color: var(--amber); 
+  }
+  
+  .btn-amber:hover, .btn-amber.active { 
+    background: var(--amber); 
+    color: #000; 
+    box-shadow: 0 0 15px rgba(255, 170, 0, 0.5);
+  }
 
   textarea, input { 
-    background: #000; border: 1px solid var(--border); 
-    color: var(--green); padding: 12px; 
-    font: 12px var(--font); width: 100%; outline: none; 
-    margin-bottom: 10px; resize: vertical; min-height: 80px;
+    background: #000; 
+    border: 2px solid var(--border); 
+    color: var(--green); 
+    padding: 14px; 
+    font: 15px var(--font); 
+    width: 100%; 
+    outline: none; 
+    margin-bottom: 12px; 
+    resize: vertical; 
+    min-height: 100px;
     touch-action: manipulation;
+    line-height: 1.5;
+  }
+  
+  textarea:focus, input:focus {
+    border-color: var(--green-dim);
+    box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
   }
   
   select { 
-    background: #000; color: var(--green); 
-    border: 1px solid var(--border); padding: 5px 8px; 
-    font: 11px var(--font); outline: none;
+    background: #000; 
+    color: var(--green); 
+    border: 2px solid var(--border); 
+    padding: 8px 12px; 
+    font: 14px var(--font); 
+    outline: none;
     touch-action: manipulation;
+    cursor: pointer;
   }
   
   .matrix-grid { 
     display: grid; 
     grid-template-columns: 1fr; 
-    gap: 10px; 
+    gap: 12px; 
   }
   
   @media (min-width: 600px) {
-    .matrix-grid { grid-template-columns: 1fr 1fr; }
+    .matrix-grid { 
+      grid-template-columns: 1fr 1fr; 
+    }
   }
   
   .label { 
-    font-size: 10px; color: var(--green-dim); 
-    letter-spacing: 1px; margin-bottom: 5px; 
-    display: block; 
+    font-size: 12px; 
+    color: var(--green-dim); 
+    letter-spacing: 1px; 
+    margin-bottom: 6px; 
+    display: block;
+    font-weight: 600;
   }
   
   .status-tag { 
-    font-size: 9px; padding: 3px 6px; 
+    font-size: 11px; 
+    padding: 4px 8px; 
     border: 1px solid var(--green-dim); 
-    color: var(--green-dim); margin-top: 5px; 
+    color: var(--green-dim); 
+    margin-top: 8px; 
     display: inline-block; 
   }
   
   .report-frame { 
-    background: #000; padding: 20px; 
+    background: #000; 
+    padding: 20px; 
     border: 2px solid var(--green-dim); 
-    white-space: pre-wrap; font-size: 11px; 
-    line-height: 1.6; color: #fff; 
-    overflow-x: auto; word-break: break-word;
+    white-space: pre-wrap; 
+    font-size: 13px; 
+    line-height: 1.7; 
+    color: #fff; 
+    overflow-x: auto; 
+    word-break: break-word;
   }
   
   .info-box {
-    background: rgba(0,255,100,0.03); 
+    background: rgba(0,255,100,0.04); 
     border: 1px solid var(--border); 
-    padding: 10px; margin-top: 10px;
+    padding: 14px; 
+    margin-top: 12px;
   }
   
   .progress-container {
     display: flex;
-    gap: 5px;
-    margin: 10px 0;
+    gap: 6px;
+    margin: 12px 0;
     flex-wrap: wrap;
   }
   
   .progress-step {
     flex: 1;
-    min-width: 40px;
-    height: 4px;
+    min-width: 45px;
+    height: 6px;
     background: #000;
     border: 1px solid var(--border);
     position: relative;
+    transition: all 0.3s ease;
   }
   
   .progress-step.completed {
     background: var(--green);
-    box-shadow: 0 0 8px var(--green-dim);
+    box-shadow: 0 0 10px var(--green-dim);
   }
   
   .hint-text {
     color: var(--amber); 
-    margin-bottom: 15px; 
-    font-size: 11px;
+    margin-bottom: 16px; 
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 14px;
+    background: rgba(255,170,0,0.06);
+    border-left: 3px solid var(--amber);
+  }
+  
+  .welcome-screen {
+    text-align: center; 
+    margin-top: 60px; 
+    color: var(--green-dim); 
+    padding: 30px 20px;
+  }
+  
+  .welcome-title {
+    font-size: 16px; 
+    margin-bottom: 24px;
+    color: var(--green);
+  }
+  
+  .welcome-desc {
+    font-size: 13px; 
+    line-height: 1.8;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .welcome-cta {
+    color: var(--amber);
+    margin-top: 20px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  #trn-display {
+    font-size: 18px; 
+    color: var(--amber); 
+    margin-bottom: 12px; 
+    word-break: break-all;
+    font-weight: bold;
+  }
+  
+  #profile-match {
+    margin-top: 12px; 
+    color: var(--green); 
+    font-size: 12px; 
+    font-weight: bold;
+  }
+  
+  #clock {
+    color: var(--amber);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  
+  #log-content {
+    flex-grow: 1; 
+    overflow-y: auto; 
+    font-size: 11px; 
+    color: var(--green-dim); 
+    border: 1px solid #111; 
+    padding: 8px;
     line-height: 1.5;
-    padding: 10px;
-    background: rgba(255,170,0,0.05);
-    border-left: 2px solid var(--amber);
   }
   
   @media (max-width: 767px) {
-    body { font-size: 12px; }
-    .btn { padding: 10px 6px; font-size: 10px; }
-    textarea, input { font-size: 11px; padding: 10px; }
-    .report-frame { padding: 15px; font-size: 10px; }
-    .header-title { letter-spacing: 1px; }
+    .header-title {
+      font-size: 12px;
+    }
+    
+    .btn {
+      font-size: 13px;
+      padding: 12px 10px;
+    }
+    
+    textarea, input {
+      font-size: 14px;
+      padding: 12px;
+    }
+    
+    .report-frame {
+      padding: 16px;
+      font-size: 12px;
+    }
+    
+    .hint-text {
+      font-size: 12px;
+      padding: 12px;
+    }
+    
+    .canvas-btn {
+      font-size: 11px;
+      padding: 6px 12px;
+    }
   }
 </style>
 </head>
@@ -197,7 +488,7 @@
       <option value="fr">FRANÇAIS</option>
       <option value="cz">ČEŠTINA</option>
     </select>
-    <div id="clock" style="color:var(--amber); font-size: 11px;">00:00:00</div>
+    <div id="clock">00:00:00</div>
   </div>
 </div>
 
@@ -224,50 +515,155 @@
       <div class="meter"><div class="target-line"></div><div id="sig-fill" class="meter-fill"></div></div>
       <span class="label" id="txt-noise">АНАЛИТИЧЕН ШУМ (AOL)</span>
       <div class="meter"><div id="aol-fill" class="meter-fill" style="background:var(--amber)"></div></div>
-      <div id="profile-match" style="margin-top:10px; color:var(--green); font-size:10px; font-weight:bold;">DATA: WAITING...</div>
+      <div id="profile-match">DATA: WAITING...</div>
       <div class="status-tag" id="txt-min-req">МИН: >50% ЗА ВАЛИДНОСТ</div>
     </div>
 
     <div style="margin-top: auto;">
       <span class="label" id="txt-coords">КООРДИНАТИ</span>
-      <div id="trn-display" style="font-size: 16px; color: var(--amber); margin-bottom: 10px; word-break: break-all;">----/----</div>
+      <div id="trn-display">----/----</div>
       <button class="btn btn-amber" onclick="initNewSession()" id="txt-new-btn">НОВА СЕСИЯ</button>
       <button class="btn" onclick="nav('rep')" style="margin-top:10px; border-color:var(--green);" id="txt-rep-btn">ФИНАЛИЗИРАЙ</button>
-      <button class="btn" onclick="toggleLog()" style="margin-top:5px; border-color:var(--amber); display: none;" id="txt-log-btn">LOG</button>
+      <button class="btn" onclick="toggleLog()" style="margin-top:8px; border-color:var(--amber); display: none;" id="txt-log-btn">ПОКАЖИ LOG</button>
     </div>
   </div>
 
   <main class="content" id="workspace">
-    <div style="text-align:center; margin-top:60px; color:var(--green-dim); padding: 20px;">
-      <div style="font-size: 14px; margin-bottom: 20px;">SELECT PROTOCOL TO BEGIN</div>
-      <div style="font-size: 10px; line-height: 1.6;">
+    <div class="welcome-screen">
+      <div class="welcome-title">SELECT PROTOCOL TO BEGIN</div>
+      <div class="welcome-desc">
         AIRV (ADVANCED INTELLIGENCE REMOTE VIEWING)<br/>
-        CLASSIFIED ANALYTIC FRAMEWORK<br/>
-        <span style="color: var(--amber);">TAP "НОВА СЕСИЯ" TO INITIALIZE</span>
+        CLASSIFIED ANALYTIC FRAMEWORK<br/><br/>
+        <span class="welcome-cta">TAP "НОВА СЕСИЯ" TO INITIALIZE</span>
       </div>
     </div>
   </main>
 
   <div class="log-panel" id="log-panel">
     <span class="label" id="txt-log">LIVE LOG</span>
-    <div id="log-content" style="flex-grow:1; overflow-y:auto; font-size:10px; color:var(--green-dim); border: 1px solid #111; padding: 5px;"></div>
+    <div id="log-content"></div>
   </div>
 </div>
 
 <script>
+// --- DRAWING FUNCTIONALITY ---
+let canvas, ctx;
+let isDrawing = false;
+let currentColor = '#00ff66';
+let lineWidth = 2;
+
+function initCanvas() {
+  canvas = document.getElementById('drawCanvas');
+  if (!canvas) return;
+  
+  ctx = canvas.getContext('2d');
+  
+  // Set canvas size
+  const container = canvas.parentElement;
+  canvas.width = Math.min(600, container.clientWidth - 4);
+  canvas.height = 400;
+  
+  // Set drawing styles
+  ctx.strokeStyle = currentColor;
+  ctx.lineWidth = lineWidth;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  
+  // Mouse events
+  canvas.addEventListener('mousedown', startDrawing);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stopDrawing);
+  canvas.addEventListener('mouseout', stopDrawing);
+  
+  // Touch events
+  canvas.addEventListener('touchstart', handleTouch);
+  canvas.addEventListener('touchmove', handleTouch);
+  canvas.addEventListener('touchend', stopDrawing);
+}
+
+function startDrawing(e) {
+  isDrawing = true;
+  const rect = canvas.getBoundingClientRect();
+  ctx.beginPath();
+  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+}
+
+function draw(e) {
+  if (!isDrawing) return;
+  const rect = canvas.getBoundingClientRect();
+  ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+  ctx.stroke();
+}
+
+function handleTouch(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  
+  if (e.type === 'touchstart') {
+    isDrawing = true;
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+  } else if (e.type === 'touchmove' && isDrawing) {
+    ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+    ctx.stroke();
+  }
+}
+
+function stopDrawing() {
+  isDrawing = false;
+  ctx.beginPath();
+  
+  // Save drawing as data URL
+  if (canvas) {
+    state.data.s3 = canvas.toDataURL();
+    analyze();
+  }
+}
+
+function clearCanvas() {
+  if (!ctx || !canvas) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  state.data.s3 = '';
+  analyze();
+  log('Canvas cleared');
+}
+
+function setDrawColor(color) {
+  currentColor = color;
+  if (ctx) ctx.strokeStyle = color;
+  
+  // Update active state
+  document.querySelectorAll('.color-option').forEach(el => {
+    el.classList.remove('active');
+  });
+  event.target.classList.add('active');
+}
+
+function setLineWidth(width) {
+  lineWidth = width;
+  if (ctx) ctx.lineWidth = width;
+}
+
 // --- MULTILINGUAL DATA ---
 const UI_TEXT = {
   bg: {
     protocol: "ПРОТОКОЛ", signal: "СИЛА НА СИГНАЛ", noise: "АНАЛИТИЧЕН ШУМ", 
     minreq: "МИН: >50% ЗА ВАЛИДНОСТ", coords: "КООРДИНАТИ", 
-    newbtn: "НОВА СЕСИЯ", repbtn: "ФИНАЛИЗИРАЙ", log: "ЛОГ НА ЖИВО", logbtn: "ЛОГ",
+    newbtn: "НОВА СЕСИЯ", repbtn: "ФИНАЛИЗИРАЙ", log: "ЛОГ НА ЖИВО", logbtn: "ПОКАЖИ LOG",
     hints: {
       s1: "Етап 1: IDEOGRAM – Начертай импулса веднага. Опиши физически гещалт без анализ (твърдо/меко, енергия, течност, органично/изкуствено).",
       s2: "Етап 2: SENSORY – Сетивни качества (цветове, звуци, мирозми, текстури, температура). БЕЗ ИМЕНА! Само сензорни данни.",
-      s3: "Етап 3: SKETCH – Скица на обекта. Рисувай инстинктивно. Избягвай сложни детайли. Просто форма и пространство.",
+      s3: "Етап 3: SKETCH – Начертай обекта на canvas-а. Рисувай инстинктивно с мишка или пръст. Избягвай сложни детайли. Само форма и пространство.",
       s4: "Етап 4: MATRIX – Раздели данните: Сетивни (S), Размери (D), Аналитичен шум (AOL). Изолирай чистия сигнал.",
       s5: "Етап 5: SUMMARY – Обобщение. Каква е функцията на обекта? Какво е неговото предназначение? Синтез на всички данни.",
       rep: "INTELLIGENCE ДОКЛАД: Резултат от анализа. Валиден при >50% signal strength."
+    },
+    canvas: {
+      clear: "ИЗЧИСТИ",
+      thin: "ТЪНКА",
+      medium: "СРЕДНА",
+      thick: "ДЕБЕЛА"
     },
     matrix: ["СЕТИВНИ (S)", "РАЗМЕРИ (D)", "AOL (ШУМ)"],
     stages: ["Идеограм", "Сетивни", "Скица", "Матрица", "Обобщение"],
@@ -287,14 +683,20 @@ const UI_TEXT = {
   en: {
     protocol: "PROTOCOL", signal: "SIGNAL STRENGTH", noise: "ANALYTIC NOISE", 
     minreq: "REQ: >50% FOR VALIDITY", coords: "COORDINATES", 
-    newbtn: "NEW SESSION", repbtn: "FINALIZE", log: "LIVE LOG", logbtn: "LOG",
+    newbtn: "NEW SESSION", repbtn: "FINALIZE", log: "LIVE LOG", logbtn: "SHOW LOG",
     hints: {
       s1: "Stage 1: IDEOGRAM – Sketch impulse immediately. Describe physical gestalt without analysis (solid/soft, energy, fluid, organic/artificial).",
       s2: "Stage 2: SENSORY – Sensory qualities (colors, sounds, smells, textures, temperature). NO NAMES! Raw sensory data only.",
-      s3: "Stage 3: SKETCH – Draw the object. Work instinctively. Avoid complex details. Just form and space.",
+      s3: "Stage 3: SKETCH – Draw the object on canvas. Work instinctively with mouse or finger. Avoid complex details. Just form and space.",
       s4: "Stage 4: MATRIX – Separate data: Sensory (S), Dimensions (D), Analytic Overlay (AOL). Isolate pure signal.",
       s5: "Stage 5: SUMMARY – Interrogation. What is the object's function? What is its purpose? Synthesize all data.",
       rep: "INTELLIGENCE REPORT: Analysis result. Valid at >50% signal strength."
+    },
+    canvas: {
+      clear: "CLEAR",
+      thin: "THIN",
+      medium: "MEDIUM",
+      thick: "THICK"
     },
     matrix: ["SENSORY (S)", "DIMENSIONS (D)", "AOL (NOISE)"],
     stages: ["Ideogram", "Sensory", "Sketch", "Matrix", "Summary"],
@@ -314,114 +716,114 @@ const UI_TEXT = {
   de: {
     protocol: "PROTOKOLL", signal: "SIGNALSTÄRKE", noise: "ANALYTISCHES RAUSCHEN",
     minreq: "MIN: >50% FÜR GÜLTIGKEIT", coords: "KOORDINATEN",
-    newbtn: "NEUE SITZUNG", repbtn: "ABSCHLIESSEN", log: "LIVE-PROTOKOLL", logbtn: "LOG",
+    newbtn: "NEUE SITZUNG", repbtn: "ABSCHLIESSEN", log: "LIVE-PROTOKOLL", logbtn: "LOG ZEIGEN",
     hints: {
-      s1: "Stufe 1: IDEOGRAM – Skizzieren Sie den Impuls sofort. Beschreiben Sie physische Gestalt ohne Analyse (fest/weich, Energie, Flüssigkeit, organisch/künstlich).",
-      s2: "Stufe 2: SENSORY – Sensorische Qualitäten (Farben, Geräusche, Gerüche, Texturen, Temperatur). KEINE NAMEN! Nur rohe sensorische Daten.",
-      s3: "Stufe 3: SKETCH – Zeichnen Sie das Objekt. Arbeiten Sie instinktiv. Vermeiden Sie komplexe Details. Nur Form und Raum.",
-      s4: "Stufe 4: MATRIX – Trennen Sie Daten: Sensorisch (S), Dimensionen (D), Analytische Überlagerung (AOL). Isolieren Sie reines Signal.",
-      s5: "Stufe 5: SUMMARY – Verhör. Was ist die Funktion des Objekts? Was ist sein Zweck? Synthetisieren Sie alle Daten.",
+      s1: "Stufe 1: IDEOGRAM – Skizzieren Sie den Impuls sofort. Beschreiben Sie physische Gestalt ohne Analyse.",
+      s2: "Stufe 2: SENSORY – Sensorische Qualitäten. KEINE NAMEN! Nur rohe sensorische Daten.",
+      s3: "Stufe 3: SKETCH – Zeichnen Sie das Objekt auf Canvas. Instinktiv mit Maus oder Finger.",
+      s4: "Stufe 4: MATRIX – Trennen Sie Daten: Sensorisch (S), Dimensionen (D), AOL.",
+      s5: "Stufe 5: SUMMARY – Was ist die Funktion? Synthetisieren Sie alle Daten.",
       rep: "GEHEIMDIENSTBERICHT: Analyseergebnis. Gültig bei >50% Signalstärke."
+    },
+    canvas: {
+      clear: "LÖSCHEN",
+      thin: "DÜNN",
+      medium: "MITTEL",
+      thick: "DICK"
     },
     matrix: ["SENSORISCH (S)", "DIMENSIONEN (D)", "AOL (RAUSCHEN)"],
     stages: ["Ideogramm", "Sensorisch", "Skizze", "Matrix", "Zusammenfassung"],
     repLabels: {
-      taskId: "AUFGABEN-ID",
-      status: "STATUS",
-      gestalt: "VISUELLE GESTALT",
-      sensory: "SENSORISCHE DATEN",
-      sketch: "SKIZZE",
-      profile: "PROFIL",
-      signal: "SIGNAL",
-      noise: "RAUSCHEN",
-      conclusion: "SCHLUSSFOLGERUNG",
+      taskId: "AUFGABEN-ID", status: "STATUS", gestalt: "VISUELLE GESTALT",
+      sensory: "SENSORISCHE DATEN", sketch: "SKIZZE", profile: "PROFIL",
+      signal: "SIGNAL", noise: "RAUSCHEN", conclusion: "SCHLUSSFOLGERUNG",
       end: "ENDE DER ÜBERTRAGUNG"
     }
   },
   es: {
     protocol: "PROTOCOLO", signal: "FUERZA DE SEÑAL", noise: "RUIDO ANALÍTICO",
     minreq: "REQ: >50% PARA VALIDEZ", coords: "COORDENADAS",
-    newbtn: "NUEVA SESIÓN", repbtn: "FINALIZAR", log: "REGISTRO EN VIVO", logbtn: "LOG",
+    newbtn: "NUEVA SESIÓN", repbtn: "FINALIZAR", log: "REGISTRO EN VIVO", logbtn: "MOSTRAR LOG",
     hints: {
-      s1: "Etapa 1: IDEOGRAM – Dibuja el impulso inmediatamente. Describe la gestalt física sin análisis (sólido/suave, energía, fluido, orgánico/artificial).",
-      s2: "Etapa 2: SENSORY – Cualidades sensoriales (colores, sonidos, olores, texturas, temperatura). ¡SIN NOMBRES! Solo datos sensoriales.",
-      s3: "Etapa 3: SKETCH – Dibuja el objeto. Trabaja instintivamente. Evita detalles complejos. Solo forma y espacio.",
-      s4: "Etapa 4: MATRIX – Separa datos: Sensoriales (S), Dimensiones (D), Superposición Analítica (AOL). Aísla señal pura.",
-      s5: "Etapa 5: SUMMARY – Interrogación. ¿Cuál es la función del objeto? ¿Cuál es su propósito? Sintetiza todos los datos.",
-      rep: "INFORME DE INTELIGENCIA: Resultado del análisis. Válido con >50% de fuerza de señal."
+      s1: "Etapa 1: IDEOGRAM – Dibuja el impulso inmediatamente.",
+      s2: "Etapa 2: SENSORY – Cualidades sensoriales. ¡SIN NOMBRES!",
+      s3: "Etapa 3: SKETCH – Dibuja el objeto en canvas. Instintivamente.",
+      s4: "Etapa 4: MATRIX – Separa datos: Sensoriales (S), Dimensiones (D), AOL.",
+      s5: "Etapa 5: SUMMARY – ¿Cuál es la función? Sintetiza todos los datos.",
+      rep: "INFORME DE INTELIGENCIA: Resultado del análisis."
+    },
+    canvas: {
+      clear: "BORRAR",
+      thin: "FINA",
+      medium: "MEDIA",
+      thick: "GRUESA"
     },
     matrix: ["SENSORIAL (S)", "DIMENSIONES (D)", "AOL (RUIDO)"],
     stages: ["Ideograma", "Sensorial", "Boceto", "Matriz", "Resumen"],
     repLabels: {
-      taskId: "ID DE TAREA",
-      status: "ESTADO",
-      gestalt: "GESTALT VISUAL",
-      sensory: "DATOS SENSORIALES",
-      sketch: "BOCETO",
-      profile: "PERFIL",
-      signal: "SEÑAL",
-      noise: "RUIDO",
-      conclusion: "CONCLUSIÓN",
+      taskId: "ID DE TAREA", status: "ESTADO", gestalt: "GESTALT VISUAL",
+      sensory: "DATOS SENSORIALES", sketch: "BOCETO", profile: "PERFIL",
+      signal: "SEÑAL", noise: "RUIDO", conclusion: "CONCLUSIÓN",
       end: "FIN DE TRANSMISIÓN"
     }
   },
   fr: {
     protocol: "PROTOCOLE", signal: "FORCE DU SIGNAL", noise: "BRUIT ANALYTIQUE",
     minreq: "MIN: >50% POUR VALIDITÉ", coords: "COORDONNÉES",
-    newbtn: "NOUVELLE SESSION", repbtn: "FINALISER", log: "JOURNAL EN DIRECT", logbtn: "LOG",
+    newbtn: "NOUVELLE SESSION", repbtn: "FINALISER", log: "JOURNAL EN DIRECT", logbtn: "AFFICHER LOG",
     hints: {
-      s1: "Étape 1: IDEOGRAM – Dessinez l'impulsion immédiatement. Décrivez la gestalt physique sans analyse (solide/mou, énergie, fluide, organique/artificiel).",
-      s2: "Étape 2: SENSORY – Qualités sensorielles (couleurs, sons, odeurs, textures, température). PAS DE NOMS! Données sensorielles brutes uniquement.",
-      s3: "Étape 3: SKETCH – Dessinez l'objet. Travaillez instinctivement. Évitez les détails complexes. Juste forme et espace.",
-      s4: "Étape 4: MATRIX – Séparez les données: Sensorielles (S), Dimensions (D), Superposition Analytique (AOL). Isolez le signal pur.",
-      s5: "Étape 5: SUMMARY – Interrogation. Quelle est la fonction de l'objet? Quel est son but? Synthétisez toutes les données.",
-      rep: "RAPPORT DE RENSEIGNEMENT: Résultat de l'analyse. Valide à >50% de force du signal."
+      s1: "Étape 1: IDEOGRAM – Dessinez l'impulsion immédiatement.",
+      s2: "Étape 2: SENSORY – Qualités sensorielles. PAS DE NOMS!",
+      s3: "Étape 3: SKETCH – Dessinez l'objet sur canvas. Instinctivement.",
+      s4: "Étape 4: MATRIX – Séparez les données: Sensorielles (S), Dimensions (D), AOL.",
+      s5: "Étape 5: SUMMARY – Quelle est la fonction? Synthétisez.",
+      rep: "RAPPORT DE RENSEIGNEMENT: Résultat de l'analyse."
+    },
+    canvas: {
+      clear: "EFFACER",
+      thin: "FIN",
+      medium: "MOYEN",
+      thick: "ÉPAIS"
     },
     matrix: ["SENSORIEL (S)", "DIMENSIONS (D)", "AOL (BRUIT)"],
     stages: ["Idéogramme", "Sensoriel", "Esquisse", "Matrice", "Résumé"],
     repLabels: {
-      taskId: "ID DE TÂCHE",
-      status: "STATUT",
-      gestalt: "GESTALT VISUELLE",
-      sensory: "DONNÉES SENSORIELLES",
-      sketch: "ESQUISSE",
-      profile: "PROFIL",
-      signal: "SIGNAL",
-      noise: "BRUIT",
-      conclusion: "CONCLUSION",
+      taskId: "ID DE TÂCHE", status: "STATUT", gestalt: "GESTALT VISUELLE",
+      sensory: "DONNÉES SENSORIELLES", sketch: "ESQUISSE", profile: "PROFIL",
+      signal: "SIGNAL", noise: "BRUIT", conclusion: "CONCLUSION",
       end: "FIN DE TRANSMISSION"
     }
   },
   cz: {
     protocol: "PROTOKOL", signal: "SÍLA SIGNÁLU", noise: "ANALYTICKÝ ŠUM",
     minreq: "MIN: >50% PRO VALIDITU", coords: "SOUŘADNICE",
-    newbtn: "NOVÁ RELACE", repbtn: "FINALIZOVAT", log: "ŽIVÝ PROTOKOL", logbtn: "LOG",
+    newbtn: "NOVÁ RELACE", repbtn: "FINALIZOVAT", log: "ŽIVÝ PROTOKOL", logbtn: "ZOBRAZIT LOG",
     hints: {
-      s1: "Fáze 1: IDEOGRAM – Okamžitě nakreslete impuls. Popište fyzickou gestalt bez analýzy (pevný/měkký, energie, tekutina, organický/umělý).",
-      s2: "Fáze 2: SENSORY – Smyslové vlastnosti (barvy, zvuky, pachy, textury, teplota). ŽÁDNÁ JMÉNA! Pouze surová smyslová data.",
-      s3: "Fáze 3: SKETCH – Nakreslete objekt. Pracujte instinktivně. Vyhněte se složitým detailům. Pouze tvar a prostor.",
-      s4: "Fáze 4: MATRIX – Oddělte data: Smyslové (S), Rozměry (D), Analytické překrytí (AOL). Izolujte čistý signál.",
-      s5: "Fáze 5: SUMMARY – Výslech. Jaká je funkce objektu? Jaký je jeho účel? Syntetizujte všechna data.",
-      rep: "ZPRAVODAJSKÁ ZPRÁVA: Výsledek analýzy. Platný při >50% síle signálu."
+      s1: "Fáze 1: IDEOGRAM – Okamžitě nakreslete impuls.",
+      s2: "Fáze 2: SENSORY – Smyslové vlastnosti. ŽÁDNÁ JMÉNA!",
+      s3: "Fáze 3: SKETCH – Nakreslete objekt na canvas. Instinktivně.",
+      s4: "Fáze 4: MATRIX – Oddělte data: Smyslové (S), Rozměry (D), AOL.",
+      s5: "Fáze 5: SUMMARY – Jaká je funkce? Syntetizujte.",
+      rep: "ZPRAVODAJSKÁ ZPRÁVA: Výsledek analýzy."
+    },
+    canvas: {
+      clear: "VYMAZAT",
+      thin: "TENKÁ",
+      medium: "STŘEDNÍ",
+      thick: "TLUSTÁ"
     },
     matrix: ["SMYSLOVÉ (S)", "ROZMĚRY (D)", "AOL (ŠUM)"],
     stages: ["Ideogram", "Smyslové", "Náčrt", "Matice", "Shrnutí"],
     repLabels: {
-      taskId: "ID ÚKOLU",
-      status: "STAV",
-      gestalt: "VIZUÁLNÍ GESTALT",
-      sensory: "SMYSLOVÁ DATA",
-      sketch: "NÁČRT",
-      profile: "PROFIL",
-      signal: "SIGNÁL",
-      noise: "ŠUM",
-      conclusion: "ZÁVĚR",
+      taskId: "ID ÚKOLU", status: "STAV", gestalt: "VIZUÁLNÍ GESTALT",
+      sensory: "SMYSLOVÁ DATA", sketch: "NÁČRT", profile: "PROFIL",
+      signal: "SIGNÁL", noise: "ŠUM", conclusion: "ZÁVĚR",
       end: "KONEC PŘENOSU"
     }
   }
 };
 
-// Enhanced dictionary with more keywords
+// Enhanced dictionary
 const DICT = {
   art: [
     'метал', 'пластмаса', 'бетон', 'стъкло', 'права', 'ъгъл', 'квадрат', 'машина', 'сграда', 'път', 'улица',
@@ -470,7 +872,6 @@ function translateUI() {
 }
 
 function initNewSession() {
-  // FULL RESET
   state.trn = `${Math.floor(1000+Math.random()*8999)}/${Math.floor(1000+Math.random()*8999)}`;
   state.data = { gestalt: '', s2: '', s3: '', s4s: '', s4d: '', s4aol: '', s5: '' };
   state.stage = 'none';
@@ -499,14 +900,15 @@ function updateProgress() {
 }
 
 function analyze() {
-  const all = (state.data.s2 + ' ' + state.data.s3 + ' ' + state.data.s4s + ' ' + state.data.s4d).toLowerCase();
+  const all = (state.data.s2 + ' ' + state.data.s4s + ' ' + state.data.s4d).toLowerCase();
   let aCount = 0, nCount = 0;
   
   DICT.art.forEach(w => { if(all.includes(w.toLowerCase())) aCount++; });
   DICT.nat.forEach(w => { if(all.includes(w.toLowerCase())) nCount++; });
 
   const totalWords = all.split(/\s+/).filter(w => w.length > 2).length;
-  const signal = Math.min((totalWords * 6) + (aCount + nCount) * 4, 100);
+  const hasDrawing = state.data.s3 && state.data.s3.length > 100;
+  const signal = Math.min((totalWords * 6) + (aCount + nCount) * 4 + (hasDrawing ? 15 : 0), 100);
   const aol = Math.min(state.data.s4aol.length * 1.5, 100);
 
   document.getElementById('sig-fill').style.width = signal + '%';
@@ -524,8 +926,8 @@ function nav(s) {
   state.stage = s;
   const ws = document.getElementById('workspace');
   const t = UI_TEXT[state.lang];
+  const c = t.canvas;
   
-  // Mark previous stages as completed
   if(['s1','s2','s3','s4','s5'].includes(s)) {
     const stageNum = parseInt(s.substring(1));
     for(let i = 1; i < stageNum; i++) {
@@ -551,17 +953,36 @@ function nav(s) {
       ws.innerHTML += `<span class="label">SENSORY DATA</span><textarea style="min-height:200px" oninput="state.data.s2=this.value; analyze()" placeholder="цветове, звуци, мирозми, температура...">${state.data.s2}</textarea>`;
       break;
     case 's3':
-      ws.innerHTML += `<span class="label">SKETCH / ВИЗУАЛНО</span><textarea style="min-height:150px" oninput="state.data.s3=this.value; analyze()" placeholder="опиши форма, разположение, пропорции...">${state.data.s3}</textarea>`;
+      ws.innerHTML += `
+        <span class="label">DRAWING CANVAS</span>
+        <div class="canvas-container">
+          <canvas id="drawCanvas"></canvas>
+        </div>
+        <div class="canvas-controls">
+          <button class="canvas-btn clear" onclick="clearCanvas()">${c.clear}</button>
+          <div class="color-picker">
+            <div class="color-option active" style="background:#00ff66" onclick="setDrawColor('#00ff66')"></div>
+            <div class="color-option" style="background:#ffaa00" onclick="setDrawColor('#ffaa00')"></div>
+            <div class="color-option" style="background:#ff3333" onclick="setDrawColor('#ff3333')"></div>
+            <div class="color-option" style="background:#ffffff" onclick="setDrawColor('#ffffff')"></div>
+          </div>
+          <button class="canvas-btn" onclick="setLineWidth(1)">${c.thin}</button>
+          <button class="canvas-btn" onclick="setLineWidth(3)">${c.medium}</button>
+          <button class="canvas-btn" onclick="setLineWidth(6)">${c.thick}</button>
+        </div>
+      `;
+      setTimeout(initCanvas, 100);
       break;
     case 's4':
+      const colSpan = window.innerWidth < 600 ? '1' : '2';
       ws.innerHTML += `<div class="matrix-grid">
         <div><span class="label">${t.matrix[0]}</span><textarea oninput="state.data.s4s=this.value; analyze()" placeholder="сетивни данни...">${state.data.s4s}</textarea></div>
         <div><span class="label">${t.matrix[1]}</span><textarea oninput="state.data.s4d=this.value; analyze()" placeholder="размери, скала...">${state.data.s4d}</textarea></div>
-        <div style="grid-column: span ${window.innerWidth < 600 ? '1' : '2'}"><span class="label" style="color:var(--amber)">${t.matrix[2]}</span><textarea oninput="state.data.s4aol=this.value; analyze()" placeholder="аналитичен шум, предположения...">${state.data.s4aol}</textarea></div>
+        <div style="grid-column: span ${colSpan}"><span class="label" style="color:var(--amber)">${t.matrix[2]}</span><textarea oninput="state.data.s4aol=this.value; analyze()" placeholder="аналитичен шум...">${state.data.s4aol}</textarea></div>
       </div>`;
       break;
     case 's5':
-      ws.innerHTML += `<span class="label">SUMMARY / ЗАКЛЮЧЕНИЕ</span><textarea style="min-height:200px" oninput="state.data.s5=this.value" placeholder="функция на обекта, предназначение, интерпретация...">${state.data.s5}</textarea>`;
+      ws.innerHTML += `<span class="label">SUMMARY / ЗАКЛЮЧЕНИЕ</span><textarea style="min-height:200px" oninput="state.data.s5=this.value" placeholder="функция, предназначение...">${state.data.s5}</textarea>`;
       state.completedStages.add('s5');
       updateProgress();
       break;
@@ -594,7 +1015,7 @@ ${state.data.gestalt || 'N/A'}
 ${state.data.s2 || 'NO DATA'}
 
 3. ${labels.sketch}:
-${state.data.s3 || 'NO SKETCH'}
+${state.data.s3 ? '[DRAWING CAPTURED]' : 'NO SKETCH'}
 
 4. ${labels.profile}:
 ${document.getElementById('profile-match').textContent}
@@ -623,7 +1044,7 @@ ${labels.end}
 
 function toggleLog() {
   const panel = document.getElementById('log-panel');
-  panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+  panel.classList.toggle('mobile-visible');
 }
 
 function log(m) {
@@ -632,19 +1053,17 @@ function log(m) {
   l.innerHTML = `<div>[${time}] > ${m}</div>` + l.innerHTML;
 }
 
-// Show log button on mobile
-if(window.innerWidth < 1200) {
-  document.getElementById('txt-log-btn').style.display = 'block';
-}
-
-window.addEventListener('resize', () => {
+function updateLayout() {
   if(window.innerWidth < 1200) {
     document.getElementById('txt-log-btn').style.display = 'block';
   } else {
     document.getElementById('txt-log-btn').style.display = 'none';
-    document.getElementById('log-panel').style.display = 'flex';
+    document.getElementById('log-panel').classList.remove('mobile-visible');
   }
-});
+}
+
+updateLayout();
+window.addEventListener('resize', updateLayout);
 
 setInterval(() => { 
   document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-GB'); 
