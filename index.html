@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8"/>
+<title>AIRV — MULTILINGUAL CLASSIFIED TERMINAL</title>
+<style>
+  :root {
+    --bg: #030503; --panel: #070a07; --line: #142214;
+    --green: #00ff41; --green-dim: #008f11; --amber: #ffb000;
+    --txt: #d1ffd1; --mono: "Courier New", Courier, monospace;
+  }
+  body { 
+    margin: 0; background: var(--bg); color: var(--txt); 
+    font: 12px/1.2 var(--mono); text-transform: uppercase;
+  }
+  .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
+  .grid { display: grid; gap: 10px; }
+  .g3 { grid-template-columns: 280px 1fr 280px; }
+  .panel { border: 1px solid var(--line); padding: 12px; background: var(--panel); position: relative; }
+  .btn { background: transparent; border: 1px solid var(--green-dim); color: var(--green); padding: 5px 10px; cursor: pointer; margin: 2px; }
+  .btn:hover { background: var(--green-dim); color: #000; }
+  .hint-box { background: rgba(0, 255, 65, 0.05); border-left: 3px solid var(--amber); padding: 8px; margin-bottom: 10px; color: var(--amber); font-style: italic; }
+  canvas.sk { background: #000; border: 1px solid var(--line); width: 100%; cursor: crosshair; }
+  textarea, input, select { background: #000; border: 1px solid var(--line); color: var(--green); padding: 5px; font: 12px var(--mono); width: 100%; }
+  .matrix-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .crt::before { content: " "; position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%); z-index: 100; pointer-events: none; background-size: 100% 3px; }
+</style>
+</head>
+<body class="crt">
+
+<div class="container">
+  <div class="panel" style="display:flex; justify-content: space-between; align-items: center; margin-bottom:10px;">
+    <div style="font-size:16px; font-weight:bold;">AIRV // TERMINAL_ID: <span id="cur-lang-label">BG</span></div>
+    <div>
+      <select id="lang-select" style="width: auto;" onchange="updateLang()">
+        <option value="bg">Български</option>
+        <option value="en">English</option>
+        <option value="cz">Čeština</option>
+      </select>
+      <button class="btn" onclick="generateTRN()">GEN_COORDINATES</button>
+    </div>
+  </div>
+
+  <div class="grid g3">
+    <div class="panel">
+      <h3 id="label-nav">PROTOCOL_STEPS</h3>
+      <button class="btn" style="width:100%" onclick="setStage('S1')">S1: IDEOGRAM</button>
+      <button class="btn" style="width:100%" onclick="setStage('S2')">S2: SENSORY</button>
+      <button class="btn" style="width:100%" onclick="setStage('S4')">S4: MATRIX</button>
+      <div style="margin-top:20px; font-size:10px; color:var(--green-dim);">
+        STATUS: <span id="trn-display">NONE</span><br>
+        STAGE: <span id="st-display">IDLE</span>
+      </div>
+    </div>
+
+    <div class="panel" id="work-area">
+      <div id="hint-area" class="hint-box"></div>
+      <div id="stage-content"></div>
+    </div>
+
+    <div class="panel">
+      <h3 id="label-log">SESSION_LOG</h3>
+      <div id="log-entries" style="height:300px; overflow-y:auto; color:var(--green-dim); font-size:10px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const I18N = {
+  bg: {
+    nav: "ПРОТОКОЛНИ ЕТАПИ", log: "ЛОГ НА СЕСИЯТА",
+    hints: {
+      S1: "ИНСТРУКЦИЯ: Начертай идеограмата веднага след TRN. Не мисли. Земя? Вода? Въздух? Движение?",
+      S2: "ИНСТРУКЦИЯ: Опиши само физически усещания. Цветове, температури, миризми, звуци.",
+      S4: "ИНСТРУКЦИЯ: Подреди данните. Ако усетиш силен 'шум' (име на място), запиши го в AOL колоната и почини."
+    },
+    labels: { s: "Сетивни", d: "Размерни", ai: "Естетика", aol: "Анализ/AOL" }
+  },
+  en: {
+    nav: "PROTOCOL STEPS", log: "SESSION LOG",
+    hints: {
+      S1: "HINT: Draw the ideogram immediately. Don't think. Land? Water? Air? Motion?",
+      S2: "HINT: List sensory data only. Colors, textures, smells, sounds.",
+      S4: "HINT: Categorize data. If you 'see' a name, put it in AOL and take a break."
+    },
+    labels: { s: "Sensory", d: "Dimension", ai: "Aesthetic", aol: "Analysis/AOL" }
+  },
+  cz: {
+    nav: "PROTOKOLÁRNÍ KROKY", log: "PROTOKOL RELACE",
+    hints: {
+      S1: "TIP: Nakreslete ideogram okamžitě. Nepřemýšlejte. Země? Voda? Vzduch? Pohyb?",
+      S2: "TIP: Popište pouze smyslové vjemy. Barvy, teploty, pachy, zvuky.",
+      S4: "TIP: Roztřiďte data. Pokud 'uvidíte' jméno, zapište ho do AOL a dejte si pauzu."
+    },
+    labels: { s: "Smyslové", d: "Rozměry", ai: "Estetika", aol: "Analýza/AOL" }
+  }
+};
+
+let currentLang = 'bg';
+let state = { stage: 'IDLE', trn: '' };
+
+function updateLang() {
+  currentLang = document.getElementById('lang-select').value;
+  document.getElementById('cur-lang-label').textContent = currentLang.toUpperCase();
+  document.getElementById('label-nav').textContent = I18N[currentLang].nav;
+  document.getElementById('label-log').textContent = I18N[currentLang].log;
+  render();
+}
+
+function generateTRN() {
+  state.trn = `${Math.floor(1000+Math.random()*8999)}-${Math.floor(1000+Math.random()*8999)}`;
+  document.getElementById('trn-display').textContent = state.trn;
+  log(`COORDINATES SET: ${state.trn}`);
+}
+
+function setStage(s) {
+  state.stage = s;
+  document.getElementById('st-display').textContent = s;
+  render();
+}
+
+function render() {
+  const area = document.getElementById('stage-content');
+  const hint = document.getElementById('hint-area');
+  
+  if(state.stage === 'IDLE') {
+    hint.innerHTML = "WAITING FOR TRN COMMAND...";
+    area.innerHTML = "SYSTEM READY.";
+    return;
+  }
+
+  hint.textContent = I18N[currentLang].hints[state.stage];
+  
+  if(state.stage === 'S1') {
+    area.innerHTML = `<canvas id="c" class="sk" height="300"></canvas><button class="btn" onclick="clearC()">CLEAR</button>`;
+    initC();
+  } else if(state.stage === 'S4') {
+    const l = I18N[currentLang].labels;
+    area.innerHTML = `
+      <div class="matrix-grid">
+        <div><label>${l.s}</label><textarea></textarea></div>
+        <div><label>${l.d}</label><textarea></textarea></div>
+        <div><label>${l.ai}</label><textarea></textarea></div>
+        <div style="color:var(--amber)"><label>${l.aol}</label><textarea></textarea></div>
+      </div>`;
+  } else {
+    area.innerHTML = `<textarea style="height:300px" placeholder="DATA INPUT..."></textarea>`;
+  }
+}
+
+function initC() {
+  const c = document.getElementById('c'); if(!c) return;
+  const ctx = c.getContext('2d');
+  let d = false; ctx.strokeStyle = "#00ff41"; ctx.lineWidth = 2;
+  c.onmousedown = (e) => { d = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); };
+  c.onmousemove = (e) => { if(d) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } };
+  window.onmouseup = () => d = false;
+}
+function clearC() { const c = document.getElementById('c'); c.getContext('2d').clearRect(0,0,c.width,c.height); }
+
+function log(m) {
+  const l = document.getElementById('log-entries');
+  l.innerHTML = `<div>> ${m}</div>` + l.innerHTML;
+}
+
+window.onload = updateLang;
+</script>
+</body>
+</html>
